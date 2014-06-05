@@ -12,8 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "debug": "~0.8.1",
-    "godot-influxdb": "~0.1.1",
     "godot": "git://github.com/nodejitsu/godot",
-    "godot-sensortag": "~0.1.0"
+    "godot-influxdb": "~0.1.1",
+    "godot-sensortag": "^0.1.1"
   }
 }
