@@ -10,10 +10,15 @@
   },
   "author": "",
   "license": "ISC",
+  "optionalDependencies": {
+    "vcgencmd": "^0.2.5"
+  },
   "dependencies": {
     "debug": "~0.8.1",
     "godot": "git://github.com/nodejitsu/godot",
     "godot-influxdb": "~0.1.1",
-    "godot-sensortag": "^0.1.1"
+    "godot-producer": "0.0.1",
+    "godot-sensortag": "^0.1.1",
+    "memory-producer": "^0.1.1"
   }
 }
