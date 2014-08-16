@@ -2,6 +2,8 @@ var godot = require('godot');
 var sensortag = require('godot-sensortag');
 var temperature = require('./temperature');
 var memory = require('memory-producer');
+var port = process.env.GODOT_PORT||1337;
+var host = process.env.GODOT_SERVER||'localhost';
 godot.createClient({
   producers: [
     sensortag({
@@ -16,4 +18,9 @@ godot.createClient({
     temperature(),
     memory({})
   ]
-}).connect(1337);
+}).connect(port, server, function(err) {
+  if (err) {
+    console.error(err);
+  }
+  console.log('Connected to %s:%s', host, port);
+});
