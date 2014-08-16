@@ -18,7 +18,7 @@ godot.createClient({
     temperature(),
     memory({})
   ]
-}).connect(port, server, function(err) {
+}).connect(port, host, function(err) {
   if (err) {
     console.error(err);
   }
