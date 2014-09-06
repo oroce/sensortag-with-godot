@@ -18,7 +18,7 @@ module.exports = producer(
     try{
       temp = vcgencmd.measureTemp();
       this.emit('data', {
-        value: temp
+        metric: temp
       });
     } catch(x){
       this.emit('reactor:error', x);
