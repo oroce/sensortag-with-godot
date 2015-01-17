@@ -19,6 +19,9 @@
     "godot-influxdb": "~0.1.1",
     "godot-producer": "0.0.1",
     "godot-sensortag": "^0.2.0",
-    "memory-producer": "^0.1.1"
+    "logify": "^0.1.2",
+    "logify-logstash-transport": "^1.0.3",
+    "memory-producer": "^0.1.1",
+    "notify-my-android": "0.0.1"
   }
 }
