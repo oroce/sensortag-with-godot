@@ -13,9 +13,9 @@ var server = godot.createServer({
         .pipe(influx({
           host: 'localhost',
           port: 8086,
-          user: '',
-          password: '',
-          database: 'test'
+          user: process.env.INFLUXDB_USER || '',
+          password: process.env.INFLUXDB_PASSWORD || '',
+          database: process.env.INFLUXDB_DB || 'test'
         }));
     },
     function(socket) {
