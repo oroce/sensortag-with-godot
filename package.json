@@ -19,6 +19,7 @@
     "godot-influxdb": "~0.1.1",
     "godot-producer": "0.0.1",
     "godot-sensortag": "^0.2.0",
-    "memory-producer": "^0.1.1"
+    "memory-producer": "^0.1.1",
+    "request": "^2.54.0"
   }
 }
