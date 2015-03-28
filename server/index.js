@@ -3,7 +3,7 @@ var influx = require('godot-influxdb');
 var expired = false;
 var request = require('request');
 var server = godot.createServer({
-  type: 'udp',
+  type: 'tcp',
   reactors: [
     function (socket) {
       return socket
@@ -20,11 +20,11 @@ var server = godot.createServer({
     },
     function(socket) {
       var tagged = new (godot.tagged)('any', 'st-metric');
-
+      var expiry = +process.env.EXPIRY || 1000 * 10;
       socket
         .pipe(tagged)
 
-        .pipe(godot.expire(1000 * 10))
+        .pipe(godot.expire(expiry))
         .pipe(godot.console(function(data) {
           opsgenie('down', 'expiry');
           expired = true;
