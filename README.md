@@ -11,3 +11,8 @@ Reading data from sensortag, sending to godot server and writing to influxdb.
 5. start grafana
 6. open stats from assets/sensortag.json
 7. watch and smile:)
+
+
+### Provision
+
+`ansible-playbook -i hosts provision/site.yml`
