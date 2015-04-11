@@ -3,6 +3,8 @@ var influx = require('godot-influxdb');
 var expired = false;
 var request = require('request');
 var debug = require('debug')('sensortag:server');
+var port = process.env.PORT || 1337;
+debug('server will listen on %s', port);
 var server = godot.createServer({
   type: 'udp',
   reactors: [
@@ -41,7 +43,7 @@ var server = godot.createServer({
       return socket;
     }
   ]
-}).listen(1337);
+}).listen(port);
 
 function opsgenie(state, reason) {
   debug('opsgenie states into=%s at %s', state, (new Date()).toJSON());
