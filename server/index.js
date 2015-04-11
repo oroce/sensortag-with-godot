@@ -23,6 +23,7 @@ var server = godot.createServer({
       var tagged = new (godot.tagged)('any', 'st-metric');
       var expiry = +process.env.EXPIRY || 1000 * 10;
       var throttle = +process.env.THROTTLE || 1000 * 60;
+      debug('expiry=%s, throttle=%s', expiry, throttle);
       socket
         .pipe(tagged)
         .pipe(godot.expire(expiry))
