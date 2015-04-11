@@ -3,7 +3,7 @@ var influx = require('godot-influxdb');
 var expired = false;
 var request = require('request');
 var debug = require('debug')('sensortag:server');
-var port = process.env.PORT || 1337;
+var port = +process.env.PORT || 1337;
 debug('server will listen on %s', port);
 var server = godot.createServer({
   type: 'udp',
