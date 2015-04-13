@@ -1,10 +1,18 @@
+'use strict';
 var godot = require('godot');
 var sensortag = require('godot-sensortag');
+var debug = require('debug')('sensortag:client');
 var temperature = require('./temperature');
 var memory = require('memory-producer');
 var port = process.env.GODOT_PORT||1337;
 var host = process.env.GODOT_SERVER||'localhost';
-godot.createClient({
+
+var client = godot.createClient({
+  type: 'tcp',
+  reconnect: {
+    retries: Infinity,
+    maxDelay: 1000 * 10
+  },
   producers: [
     sensortag({
       ttl: +process.env.TTL || 1000 * 15,
@@ -26,7 +34,18 @@ godot.createClient({
       service: 'rpi/memory'
     })
   ]
-}).connect(port, host, function(err) {
+})
+client
+  .on('connect', function onconnect() {
+    debug('connecting');
+  })
+  .on('error', function onerror(err) {
+    debug('error occured: %s', err);
+  })
+  .on('reconnect', function onreconnect() {
+    debug('trying to reconnect');
+  });
+client.connect(port, host, function(err) {
   if (err) {
     console.error(err);
   }
