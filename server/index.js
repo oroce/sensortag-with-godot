@@ -1,12 +1,17 @@
 var godot = require('godot');
 var influx = require('godot-influxdb');
-var expired = false;
 var request = require('request');
 var debug = require('debug')('sensortag:server');
 var port = +process.env.PORT || 1337;
 debug('server will listen on %s', port);
+
+var tagged = new (godot.tagged)('any', 'st-metric');
+var expiry = +process.env.EXPIRY || 1000 * 10;
+var throttle = +process.env.THROTTLE || 1000 * 60;
+debug('expiry=%s, throttle=%s', expiry, throttle);
+
 var server = godot.createServer({
-  type: 'udp',
+  type: 'tcp',
   reactors: [
     function (socket) {
       return socket
@@ -21,26 +26,21 @@ var server = godot.createServer({
           database: process.env.INFLUXDB_DB || 'test'
         }));
     },
-    function(socket) {
-      var tagged = new (godot.tagged)('any', 'st-metric');
-      var expiry = +process.env.EXPIRY || 1000 * 10;
-      var throttle = +process.env.THROTTLE || 1000 * 60;
-      debug('expiry=%s, throttle=%s', expiry, throttle);
-      socket
+    function down(socket) {
+      return socket
         .pipe(tagged)
         .pipe(godot.expire(expiry))
         .pipe(godot.console(function(data) {
           opsgenie('down', 'expiry');
         }));
-
-      socket
+    },
+    function up(socket) {
+      return socket
         .pipe(tagged)
         .pipe(godot.throttle(1, throttle))
         .pipe(godot.console(function() {
           opsgenie('up');
         }));
-
-      return socket;
     }
   ]
 }).listen(port);
