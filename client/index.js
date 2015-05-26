@@ -31,7 +31,7 @@ var client = godot.createClient({
     })*/
     sensortagProducer({
       ttl: +process.env.TTL || 1000 * 15,
-    })
+    }),
 
     /*sensortag({
       ttl: +process.env.TTL || 1000 * 15,
