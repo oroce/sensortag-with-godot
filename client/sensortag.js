@@ -28,9 +28,11 @@ module.exports = producer(function ctor() {
           if (ndx === -1) {
             // it can happen, if tag disconnects before we could setup (low rssi)
             console.log('disco not setup device');
+            noble.startScanning();
             return;
           }
           self.devices.splice(ndx, 1);
+          noble.startScanning();
        });
 
        series([
@@ -56,27 +58,6 @@ module.exports = producer(function ctor() {
          self.devices.push(tag);
          noble.startScanning();
        });
-       /*console.log('connecting');
-       tag.connect(function(err) {
-         if (err) {
-           return console.error(err);
-         }
-         console.log('connected');
-         tag.discoverServicesAndCharacteristics(function(err) {
-           if (err) {
-            return console.error(err);
-           }
-           console.log('discovered services');
-           tag.enableIrTemperature(function(err) {
-             if (err) {
-               return console.error(err);
-             }
-             console.log('device added=', tag.uuid);
-             self.devices.push(tag);
-           });
-         });
-       });*/
-       // ...
     }
   });
 
