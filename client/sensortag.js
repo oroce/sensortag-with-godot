@@ -71,10 +71,22 @@ module.exports = producer(function ctor() {
   this.devices.forEach(function(device) {
     series([
       function(cb) {
-        device.readIrTemperature(cb);
+        device.readIrTemperature(function(err, object, ambient) {
+          if (err) return cb(err);
+          cb(null, {
+            object: object,
+            ambient: ambient
+          });
+        });
       },
       function(cb) {
-        device.readHumidity(cb);
+        device.readHumidity(function(err, temperature, humidity) {
+          if (err) return cb(err);
+          cb(null, {
+            temperature: temperature,
+            humidity: humidity
+          });
+        });
       },
       function(cb) {
         device._peripheral.updateRssi(cb);
@@ -91,24 +103,24 @@ module.exports = producer(function ctor() {
 
       self.emit('data', {
         host: device.uuid,
-        service: 'temperature',
+        service: 'temperature/ambient',
         meta: {
           uuid: device.uuid,
           rssi: rssi
         },
         tags: [],
-        metric: temp
+        metric: temp.ambient
       });
 
       self.emit('data', {
         host: device.uuid,
-        service: 'humidity',
+        service: 'humidity/humidity',
         meta: {
           uuid: device.uuid,
           rssi: rssi
         },
         tags: [],
-        metric: humidity
+        metric: humidity.humidity
       });
 
       self.emit('data', {
