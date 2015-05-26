@@ -91,7 +91,7 @@ module.exports = producer(function ctor() {
 
       self.emit('data', {
         host: device.uuid,
-        service: format('godot.%s.temperature', device.uuid),
+        service: 'temperature',
         meta: {
           uuid: device.uuid,
           rssi: rssi
@@ -102,7 +102,7 @@ module.exports = producer(function ctor() {
 
       self.emit('data', {
         host: device.uuid,
-        service: format('godot.%s.humidity', device.uuid),
+        service: 'humidity',
         meta: {
           uuid: device.uuid,
           rssi: rssi
@@ -113,7 +113,7 @@ module.exports = producer(function ctor() {
 
       self.emit('data', {
         host: device.uuid,
-        service: format('godot.%s.rssi', device.uuid),
+        service: 'rssi',
         meta: {
           uuid: device.uuid,
           rssi: rssi
