@@ -108,7 +108,7 @@ module.exports = producer(function ctor() {
           uuid: device.uuid,
           rssi: rssi
         },
-        tags: [],
+        tags: ['st-metric'],
         metric: temp.ambient
       });
 
@@ -119,7 +119,7 @@ module.exports = producer(function ctor() {
           uuid: device.uuid,
           rssi: rssi
         },
-        tags: [],
+        tags: ['st-metric'],
         metric: humidity.humidity
       });
 
