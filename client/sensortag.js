@@ -1,7 +1,9 @@
 var producer = require('godot-producer');
 var noble = require('noble');
 var series = require('run-series');
-var CC2540SensorTag  = require('sensortag').CC2540;
+var CC2540SensorTag = require('sensortag').CC2540;
+var NobleDevice = require('sensortag/node_modules/noble-device');
+NobleDevice.Util.mixin(CC2540SensorTag, NobleDevice.BatteryService);
 var format = require('util').format;
 noble.on('stateChange', function(state) {
   console.log('state change', state);
@@ -18,8 +20,10 @@ module.exports = producer(function ctor() {
   console.log('new instance');
   noble.on('discover', function(peripheral) {
     noble.stopScanning();
-    var localName = peripheral.advertisement.localName;
-    console.log('new device %s', localName);
+    var advertisement = peripheral.advertisement;
+    var localName = advertisement.localName;
+    var txPowerLevel = advertisement.txPowerLevel;
+    console.log('new device %s (adv=%s)', localName, JSON.stringify(advertisement));
     if ((localName === 'SensorTag') || (localName === 'TI BLE Sensor Tag')) {
        var tag = new CC2540SensorTag(peripheral);
        tag.on('disconnect', function() {
@@ -28,10 +32,30 @@ module.exports = producer(function ctor() {
           if (ndx === -1) {
             // it can happen, if tag disconnects before we could setup (low rssi)
             console.log('disco not setup device');
+            self.emit('data', {
+              service: 'state/intercepted',
+              host: peripheral.uuid,
+              meta: {
+                uuid: peripheral.uuid,
+                tx: txPowerLevel,
+                rssi: peripheral.rssi
+              },
+              tags: ['st-connection']
+            });
             noble.startScanning();
             return;
           }
           self.devices.splice(ndx, 1);
+          self.emit('data', {
+            service: 'state/disconnected',
+            host: peripheral.uuid,
+            meta: {
+              uuid: peripheral.uuid,
+              tx: txPowerLevel,
+              rssi: peripheral.rssi
+            },
+            tags: ['st-connection']
+          });
           noble.startScanning();
        });
 
@@ -50,12 +74,22 @@ module.exports = producer(function ctor() {
          }
        ], function(err) {
          if (err) {
-           this.emit('error', err);
+           self.emit('error', err);
            noble.startScanning();
            return
          }
          console.log('added %s', tag);
          self.devices.push(tag);
+         self.emit('data', {
+           service: 'state/connected',
+           host: peripheral.uuid,
+           meta: {
+             uuid: peripheral.uuid,
+             tx: txPowerLevel,
+             rssi: peripheral.rssi
+           },
+           tags: ['st-connection']
+         });
          noble.startScanning();
        });
     }
@@ -89,6 +123,9 @@ module.exports = producer(function ctor() {
         });
       },
       function(cb) {
+        device.readBatteryLevel(cb);
+      },
+      function(cb) {
         device._peripheral.updateRssi(cb);
       }
     ], function(err, results) {
@@ -96,17 +133,18 @@ module.exports = producer(function ctor() {
         self.emit('error', err);
         return;
       }
-
       var temp = results[0];
       var humidity = results[1];
-      var rssi = results[2];
+      var battery = results[2]
+      var rssi = results[3];
 
       self.emit('data', {
         host: device.uuid,
         service: 'temperature/ambient',
         meta: {
           uuid: device.uuid,
-          rssi: rssi
+          rssi: rssi,
+          battery: battery
         },
         tags: ['st-metric'],
         metric: temp.ambient
@@ -117,7 +155,8 @@ module.exports = producer(function ctor() {
         service: 'humidity/humidity',
         meta: {
           uuid: device.uuid,
-          rssi: rssi
+          rssi: rssi,
+          battery: battery
         },
         tags: ['st-metric'],
         metric: humidity.humidity
@@ -128,11 +167,24 @@ module.exports = producer(function ctor() {
         service: 'rssi',
         meta: {
           uuid: device.uuid,
-          rssi: rssi
+          rssi: rssi,
+          battery: battery
         },
-        tags: [],
+        tags: ['st-technical'],
         metric: rssi
-      })
+      });
+
+      self.emit('data', {
+        host: device.uuid,
+        service: 'battery',
+        meta: {
+          uuid: device.uuid,
+          rssi: rssi,
+          battery: battery
+        },
+        tags: ['st-technical'],
+        metric: battery
+      });
     });
   })
 });
