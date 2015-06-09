@@ -3,6 +3,7 @@ var influx = require('godot-influxdb');
 var request = require('request');
 var debug = require('debug')('sensortag:server');
 var port = +process.env.PORT || 1337;
+var format = require('util').format;
 debug('server will listen on %s', port);
 
 var tagged = new (godot.tagged)('any', 'st-metric');
@@ -16,7 +17,7 @@ var server = godot.createServer({
     function (socket) {
       return socket
         .pipe(godot.console(function(d){
-          console.log(JSON.stringify(d));
+          console.log(JSON.stringify(d, null, 2));
         }))
         .pipe(influx({
           host: 'localhost',
@@ -29,24 +30,34 @@ var server = godot.createServer({
     function down(socket) {
       return socket
         .pipe(tagged)
-        .pipe(godot.expire(expiry))
-        .pipe(godot.console(function(data) {
-          opsgenie('down', 'expiry');
-        }));
+        .pipe(
+          godot.by('host', function(socketByHost) {
+            return socketByHost
+              .pipe(godot.expire(expiry))
+              .pipe(godot.console(function(data) {
+                  opsgenie('down', 'expiry', data || {});
+              }))
+          })
+        );
     },
     function up(socket) {
       return socket
         .pipe(tagged)
-        .pipe(godot.throttle(1, throttle))
-        .pipe(godot.console(function() {
-          opsgenie('up');
-        }));
-    }
+        .pipe(
+          godot.by('host', function(socketByHost) {
+            return socketByHost
+              .pipe(godot.throttle(1, throttle))
+              .pipe(godot.console(function(data) {
+                opsgenie('up', null, data || {});
+              }));
+          })
+        );
+    },
   ]
 }).listen(port);
 
-function opsgenie(state, reason) {
-  debug('opsgenie states into=%s at %s', state, (new Date()).toJSON());
+function opsgenie(state, reason, options) {
+  debug('opsgenie states into=%s at %s (%j)', state, (new Date()).toJSON(), options);
   var url;
   var data = {
     apiKey: process.env.CUSTOMER_KEY,
@@ -56,8 +67,9 @@ function opsgenie(state, reason) {
     url = 'https://api.opsgenie.com/v1/json/alert/close';
   } else {
     url = 'https://api.opsgenie.com/v1/json/alert';
-    data.message = 'sensortag monitoring went down because of ' + (reason || 'reasons');
+    data.message = format('sensortag of %s monitoring went down because of %s', options.host, (reason || 'reasons'));
   }
+  return debug('state=%s, message=%s', state, data.message);
   debug('send to %s with=', url, data);
   request({
     url: url,
