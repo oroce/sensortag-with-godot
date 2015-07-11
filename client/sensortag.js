@@ -1,7 +1,10 @@
 var producer = require('godot-producer');
 var noble = require('noble');
 var series = require('run-series');
-var CC2540SensorTag = require('sensortag').CC2540;
+var SensorTag = require('sensortag');
+var CC2540SensorTag = SensorTag.CC2540;
+SensorTag.SCAN_DUPLICATES = true;
+CC2540SensorTag.SCAN_DUPLICATES = true;
 var NobleDevice = require('sensortag/node_modules/noble-device');
 NobleDevice.Util.mixin(CC2540SensorTag, NobleDevice.BatteryService);
 var format = require('util').format;
@@ -123,6 +126,9 @@ module.exports = producer(function ctor() {
         });
       },
       function(cb) {
+      //if (device(.advertisiment?).serviceUuids.indexOf('180f') === -1) {
+      //  return cb();
+      //}
         device.readBatteryLevel(cb);
       },
       function(cb) {
