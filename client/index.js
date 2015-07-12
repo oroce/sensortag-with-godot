@@ -44,14 +44,14 @@ var client = godot.createClient({
         sensors: ['irTemperature', 'humidity']
       }
     }),*/
-    /*temperature({
+    temperature({
       host: 'rpi',
       service: 'rpi/temperature'
     }),
     memory({
       host: 'rpi',
       service: 'rpi/memory'
-    })*/
+    })
   ]
 })
 client
