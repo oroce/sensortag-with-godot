@@ -18,9 +18,9 @@
     "godot": "git://github.com/nodejitsu/godot",
     "godot-influxdb": "~0.1.1",
     "godot-producer": "0.0.1",
-    "godot-sensortag": "^0.2.0",
     "memory-producer": "^0.1.1",
     "noble": "^1.0.1",
+    "queue": "^3.1.0",
     "request": "^2.54.0",
     "run-series": "^1.1.1",
     "sensortag": "^1.0.0"

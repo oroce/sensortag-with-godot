@@ -2,6 +2,10 @@ var producer = require('godot-producer');
 var noble = require('noble');
 var series = require('run-series');
 var SensorTag = require('sensortag');
+var queue = require('queue')();
+// 1 minute should be enough to connect
+queue.timeout = 2 * 60 * 1000;
+queue.concurrency = 1;
 var CC2540SensorTag = SensorTag.CC2540;
 SensorTag.SCAN_DUPLICATES = true;
 CC2540SensorTag.SCAN_DUPLICATES = true;
@@ -16,20 +20,39 @@ noble.on('stateChange', function(state) {
     noble.stopScanning();
   }
 });
-
+queue
+  .on('timeout', function(next, job) {
+    console.log('timeout', job);
+    job.cancel(next);
+    // should cancel `job`
+    //next();
+  })
+  .on('error', function(err, job) {
+    console.log('error occured=', err, '' + job);
+  })
+  .on('success', function(result, job) {
+    console.log('successfully run job=', '' + job);
+  })
+  .on('end', function() {
+    console.log('no more jobs to process, scanning');
+    noble.startScanning();
+  })
+queue.start();
 module.exports = producer(function ctor() {
   var self = this;
   this.devices = [];
   console.log('new instance');
   noble.on('discover', function(peripheral) {
     noble.stopScanning();
+    console.log('discoverd device at %s', new Date(), peripheral.uuid, peripheral.advertisement);
     var advertisement = peripheral.advertisement;
-    var localName = advertisement.localName;
+    var localName = advertisement.localName; // || 'SensorTag';
     var txPowerLevel = advertisement.txPowerLevel;
     console.log('new device %s (adv=%s)', localName, JSON.stringify(advertisement));
     if ((localName === 'SensorTag') || (localName === 'TI BLE Sensor Tag')) {
-       var tag = new CC2540SensorTag(peripheral);
-       tag.on('disconnect', function() {
+      var job = function(cb) {
+        var tag = new CC2540SensorTag(peripheral);
+        tag.on('disconnect', function() {
           console.log('disco');
           var ndx = self.devices.indexOf(tag)
           if (ndx === -1) {
@@ -45,7 +68,6 @@ module.exports = producer(function ctor() {
               },
               tags: ['st-connection']
             });
-            noble.startScanning();
             return;
           }
           self.devices.splice(ndx, 1);
@@ -59,43 +81,58 @@ module.exports = producer(function ctor() {
             },
             tags: ['st-connection']
           });
-          noble.startScanning();
+        });
+        console.log('start connecting=', peripheral.uuid);
+        series([
+          function(cb) {
+            tag.connect(cb);
+          },
+          function(cb) {
+            tag.discoverServicesAndCharacteristics(cb);
+          },
+          function(cb) {
+            tag.enableIrTemperature(cb);
+          },
+          function(cb) {
+            tag.enableHumidity(cb);
+          }
+        ], function(err) {
+          if (err) {
+            self.emit('error', err);
+            cb(err);
+            return
+          }
+          console.log('added %s', tag);
+          self.devices.push(tag);
+          self.emit('data', {
+            service: 'state/connected',
+            host: peripheral.uuid,
+            meta: {
+              uuid: peripheral.uuid,
+              tx: txPowerLevel,
+              rssi: peripheral.rssi
+            },
+            tags: ['st-connection']
+          });
+          //noble.startScanning();
+          cb(null, {
+             uuid: peripheral
+          });
        });
-
-       series([
-         function(cb) {
-           tag.connect(cb);
-         },
-         function(cb) {
-           tag.discoverServicesAndCharacteristics(cb);
-         },
-         function(cb) {
-           tag.enableIrTemperature(cb);
-         },
-         function(cb) {
-           tag.enableHumidity(cb);
-         }
-       ], function(err) {
-         if (err) {
-           self.emit('error', err);
-           noble.startScanning();
-           return
-         }
-         console.log('added %s', tag);
-         self.devices.push(tag);
-         self.emit('data', {
-           service: 'state/connected',
-           host: peripheral.uuid,
-           meta: {
-             uuid: peripheral.uuid,
-             tx: txPowerLevel,
-             rssi: peripheral.rssi
-           },
-           tags: ['st-connection']
-         });
-         noble.startScanning();
-       });
+      };
+      job.cancel = function(cb) {
+        peripheral.disconnect(cb);
+      };
+      job.toString = function() {
+        return localName + '(' + peripheral.uuid + ')';
+      };
+      queue.push(job);
+      queue.start();
+      console.log('job added to the queue');
+    } else {
+      console.log('dunno what is it', localName, peripheral);
     }
+    
   });
 
 
@@ -103,9 +140,9 @@ module.exports = producer(function ctor() {
   var self = this;
   var len = this.devices.length;
   if (len === 0) {
-    console.log('no device yet');
+    return console.log('no device yet');
   }
-  this.devices.forEach(function(device) {
+  var read = function(device, fn) {
     series([
       function(cb) {
         device.readIrTemperature(function(err, object, ambient) {
@@ -126,9 +163,9 @@ module.exports = producer(function ctor() {
         });
       },
       function(cb) {
-      //if (device(.advertisiment?).serviceUuids.indexOf('180f') === -1) {
-      //  return cb();
-      //}
+        if (device._peripheral.advertisement.serviceUuids.indexOf('180f') === -1) {
+          return cb();
+        }
         device.readBatteryLevel(cb);
       },
       function(cb) {
@@ -137,6 +174,7 @@ module.exports = producer(function ctor() {
     ], function(err, results) {
       if (err) {
         self.emit('error', err);
+        fn(err);
         return;
       }
       var temp = results[0];
@@ -191,6 +229,15 @@ module.exports = producer(function ctor() {
         tags: ['st-technical'],
         metric: battery
       });
+      fn();
     });
-  })
+  };
+
+  var fns = this.devices.map(function(device) {
+    return function(fn) {
+      read(device, fn);
+    };
+  });
+  series(fns);
 });
+
