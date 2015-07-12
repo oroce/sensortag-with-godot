@@ -68,6 +68,7 @@ module.exports = producer(function ctor() {
               },
               tags: ['st-connection']
             });
+            queue.start();
             return;
           }
           self.devices.splice(ndx, 1);
@@ -81,6 +82,7 @@ module.exports = producer(function ctor() {
             },
             tags: ['st-connection']
           });
+          queue.start();
         });
         console.log('start connecting=', peripheral.uuid);
         series([

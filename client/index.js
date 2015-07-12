@@ -1,6 +1,6 @@
 'use strict';
 var godot = require('godot');
-var sensortag = require('godot-sensortag');
+//var sensortag = require('godot-sensortag');
 var debug = require('debug')('sensortag:client');
 var temperature = require('./temperature');
 var memory = require('memory-producer');
@@ -28,7 +28,7 @@ var client = godot.createClient({
   producers: [
     /*Dummy({
       ttl: 600
-    })*/
+    }),*/
     sensortagProducer({
       ttl: +process.env.TTL || 1000 * 15,
     }),
@@ -44,14 +44,14 @@ var client = godot.createClient({
         sensors: ['irTemperature', 'humidity']
       }
     }),*/
-    temperature({
+    /*temperature({
       host: 'rpi',
       service: 'rpi/temperature'
     }),
     memory({
       host: 'rpi',
       service: 'rpi/memory'
-    })
+    })*/
   ]
 })
 client
