@@ -40,9 +40,13 @@ queue
 queue.start();
 module.exports = producer(function ctor() {
   var self = this;
+  var allowed = (process.env.UUIDS || '').split(',');
   this.devices = [];
   console.log('new instance');
   noble.on('discover', function(peripheral) {
+    if (allowed.length && allowed.indexOf(peripheral.uuid) === -1) {
+      return console.log('Ignoring %s because not in allowed (%s)', peripheral.uuid, allowed)
+    }
     noble.stopScanning();
     console.log('discoverd device at %s', new Date(), peripheral.uuid, peripheral.advertisement);
     var advertisement = peripheral.advertisement;
