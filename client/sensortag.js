@@ -134,7 +134,8 @@ module.exports = producer(function ctor() {
       job.toString = function() {
         return localName + '(' + peripheral.uuid + ')';
       };
-      queue.push(job);
+      //queue.push(job);
+      job();
       queue.start();
       console.log('job added to the queue');
     } else {
