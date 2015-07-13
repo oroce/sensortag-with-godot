@@ -45,7 +45,9 @@ module.exports = producer(function ctor() {
   console.log('new instance');
   noble.on('discover', function(peripheral) {
     if (allowed.length && allowed.indexOf(peripheral.uuid) === -1) {
-      return console.log('Ignoring %s because not in allowed (%s)', peripheral.uuid, allowed)
+      console.log('Ignoring %s because not in allowed (%s)', peripheral.uuid, allowed)
+      queue.start();
+      return;
     }
     noble.stopScanning();
     console.log('discoverd device at %s', new Date(), peripheral.uuid, peripheral.advertisement);
