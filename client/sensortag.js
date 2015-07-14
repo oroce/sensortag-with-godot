@@ -129,7 +129,7 @@ module.exports = producer(function ctor() {
           });
           //noble.startScanning();
           cb(null, {
-             uuid: peripheral
+             uuid: peripheral.uuid
           });
        });
       };
@@ -139,9 +139,9 @@ module.exports = producer(function ctor() {
       job.toString = function() {
         return localName + '(' + peripheral.uuid + ')';
       };
-      queue.push(job);
-
-      queue.start();
+      //queue.push(job);
+      job(console.log.bind(console, 'job is done'));
+      //queue.start();
       console.log('job added to the queue');
     } else {
       console.log('dunno what is it', localName, peripheral);
