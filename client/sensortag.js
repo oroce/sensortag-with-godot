@@ -58,6 +58,11 @@ module.exports = producer(function ctor() {
     if ((localName === 'SensorTag') || (localName === 'TI BLE Sensor Tag')) {
       var job = function(cb) {
         var tag = new CC2540SensorTag(peripheral);
+        tag.on('error', function(err) {
+          console.error(err);
+          console.log('error occured (%s), disco', err);
+          tag.disconnect();
+        });
         tag.on('disconnect', function() {
           console.log('disco');
           var ndx = self.devices.indexOf(tag)
