@@ -140,11 +140,15 @@ module.exports = producer(function ctor() {
         return localName + '(' + peripheral.uuid + ')';
       };
       //queue.push(job);
-      job(console.log.bind(console, 'job is done'));
+      job(function(err) {
+        console.log('job is done: (err=%s)', err || '');
+        queue.start();
+      });
       //queue.start();
       console.log('job added to the queue');
     } else {
       console.log('dunno what is it', localName, peripheral);
+      queue.start();
     }
     
   });
