@@ -33,7 +33,6 @@ Reading data from sensortag, sending to godot server and writing to influxdb.
 BLE_VENDORID=0x0a12
 BLE_PRODUCTID=0x0001
 ```
-
 5. `vagrant up`
 
 6. `vagrant suspend`
