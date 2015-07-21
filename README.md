@@ -29,7 +29,6 @@ Reading data from sensortag, sending to godot server and writing to influxdb.
 `VBoxManage list usbhost`
 
 4. Add `VendorId` and `ProductId` to the `.env` file
-
 ```
 BLE_VENDORID=0x0a12
 BLE_PRODUCTID=0x0001
