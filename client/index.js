@@ -1,4 +1,5 @@
 'use strict';
+var config = require('./config');
 var godot = require('godot');
 //var sensortag = require('godot-sensortag');
 var debug = require('debug')('sensortag:client');
@@ -8,6 +9,9 @@ var port = process.env.GODOT_PORT||1337;
 var host = process.env.GODOT_SERVER||'localhost';
 var producer = require('godot-producer');
 var sensortagProducer = require('./sensortag');
+var minewProducer = require('./minew');
+var flowerPowerProducer = require('./flower-power');
+var flowerPowerCloudProducer = require('./flower-power-cloud');
 var Dummy = producer(function() {
   this.ndx = 0;
 }, function() {
@@ -19,20 +23,62 @@ var Dummy = producer(function() {
   });
 });
 
+var producers = [];
+debug('is sensortag enabled: %s', config.sensortag.enabled);
+
+function add(type, ctor) {
+  if (config[type].enabled) {
+    if (config[type].uuids.length) {
+      config[type].uuids.forEach(function(uuid, i) {
+        debug('adding %s. %s with uuid %s and ttl:%s',
+          i,
+          type,
+          uuid,
+          config[type].ttl);
+        producers.push(ctor({
+          uuid: uuid,
+          ttl: config[type].ttl
+        }));
+      });
+    } else {
+      debug('adding an uuidless %s with ttl: %s', type, config[type].ttl);
+      producers.push(ctor({
+        ttl: config[type].ttl
+      }));
+    }
+  }
+}
+add('sensortag', sensortagProducer);
+add('minew', minewProducer);
+add('flowerPower', flowerPowerProducer);
+
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {
     retries: Infinity,
     maxDelay: 1000 * 10
   },
-  producers: [
+  producers: producers || [
     /*Dummy({
       ttl: 600
     }),*/
-    sensortagProducer({
-      ttl: +process.env.TTL || 1000 * 15,
+    /*sensortagProducer({
+      ttl: config.sensortag.ttl,
     }),
-
+    minewProducer({
+      ttl: config.minew.ttl
+    }),*/
+    /*flowerPowerCloudProducer({
+      ttl: config.flowerPowerCloud.ttl,
+      clientId: config.flowerPowerCloud.clientId,
+      clientSecret: config.flowerPowerCloud.clientSecret,
+      username: config.flowerPowerCloud.username,
+      password: config.flowerPowerCloud.password,
+      location: config.flowerPowerCloud.location
+    }),*/
+    /*flowerPowerProducer({
+      ttl: config.flowerPower.ttl
+    })*/
     /*sensortag({
       ttl: +process.env.TTL || 1000 * 15,
       mappings: {
@@ -44,14 +90,14 @@ var client = godot.createClient({
         sensors: ['irTemperature', 'humidity']
       }
     }),*/
-    temperature({
+    /*temperature({
       host: 'rpi',
       service: 'rpi/temperature'
     }),
     memory({
       host: 'rpi',
       service: 'rpi/memory'
-    })
+    })*/
   ]
 })
 client

@@ -1,16 +1,16 @@
 'use strict';
 
+'use strict';
+
 var producer = require('godot-producer');
-var SensorTag = require('sensortag').CC2540;
-var NobleDevice = require('sensortag/node_modules/noble-device');
-NobleDevice.Util.mixin(SensorTag, NobleDevice.BatteryService);
-var debug = require('debug')('swg:device:sensortag');
-SensorTag.SCAN_DUPLICATES = true;
+var MiniBeacon = require('minew-minibeacon')
+var debug = require('debug')('swg:device:minibeacon');
+//MiniBeacon.SCAN_DUPLICATES = true;
 
 var series = require('run-series');
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
-  debug('initialized sensortag with %s', this.uuid || '<empty uuid>');
+  debug('initialized MiniBeacon with %s', this.uuid || '<empty uuid>');
   this.filter = function(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
@@ -25,17 +25,18 @@ var Producer = producer(function ctor(options) {
   this.on('error', console.error.bind(console));
 }, function produce() {
   debug('producing, stopping and restarting discovery');
-  SensorTag.stopDiscoverAll(this.filter);
+  MiniBeacon.stopDiscoverAll(this.filter);
   if (this.device) {
     this.device.disconnect();
     this.device = null;
   }
-  SensorTag.discoverAll(this.filter);
+  MiniBeacon.discoverAll(this.filter);
 });
-module.exports = Producer
+
+module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  SensorTag.stopDiscoverAll(this.filter);
+  MiniBeacon.stopDiscoverAll(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;
@@ -48,33 +49,6 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       device.connectAndSetup(cb);
     },
     function(cb) {
-      device.enableIrTemperature(cb);
-    },
-    function(cb) {
-      device.enableHumidity(cb);
-    },
-    function(cb) {
-      device.readIrTemperature(function(err, object, ambient) {
-        if (err) return cb(err);
-        cb(null, {
-          object: object,
-          ambient: ambient
-        });
-      });
-    },
-    function(cb) {
-      device.readHumidity(function(err, temperature, humidity) {
-        if (err) return cb(err);
-        cb(null, {
-          temperature: temperature,
-          humidity: humidity
-        });
-      });
-    },
-    function(cb) {
-      if (device._peripheral.advertisement.serviceUuids.indexOf('180f') === -1) {
-        return cb();
-      }
       device.readBatteryLevel(cb);
     },
     function(cb) {
@@ -86,10 +60,8 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       // do not return, maybe we could grab some data
     }
     results || (results = []);
-    var temp = results[3];
-    var humidity = results[4];
-    var battery = results[5];
-    var rssi = results[6];
+    var battery = results[1];
+    var rssi = results[2];
 
     self.emit('data', {
       service: 'state/connected',
@@ -99,32 +71,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
         tx: txPowerLevel,
         rssi: rssi
       },
-      tags: ['st-connection']
-    });
-
-
-    self.emit('data', {
-      host: device.uuid,
-      service: 'temperature/ambient',
-      meta: {
-        uuid: device.uuid,
-        rssi: rssi,
-        battery: battery
-      },
-      tags: ['st-metric'],
-      metric: temp.ambient
-    });
-
-    self.emit('data', {
-      host: device.uuid,
-      service: 'humidity/humidity',
-      meta: {
-        uuid: device.uuid,
-        rssi: rssi,
-        battery: battery
-      },
-      tags: ['st-metric'],
-      metric: humidity.humidity
+      tags: ['minibeacon-connection']
     });
 
     self.emit('data', {
@@ -135,7 +82,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
         rssi: rssi,
         battery: battery
       },
-      tags: ['st-technical'],
+      tags: ['minibeacon-technical'],
       metric: rssi
     });
 
@@ -147,7 +94,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
         rssi: rssi,
         battery: battery
       },
-      tags: ['st-technical'],
+      tags: ['minibeacon-technical'],
       metric: battery
     });
 
