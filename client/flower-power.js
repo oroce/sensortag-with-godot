@@ -40,6 +40,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
   var advertisement = peripheral.advertisement;
   var localName = advertisement.localName;
   var txPowerLevel = advertisement.txPowerLevel;
+  var flowerPower = device;
   series([
     function(cb) {
       flowerPower.connectAndSetup(cb);
