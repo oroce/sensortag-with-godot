@@ -91,6 +91,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
 
     emit('temperature/soil', soilTemp);
     emit('temperature/air', airTemp);
+    emit('soil/moisture', soilMoisture);
     emit('sunlight/value', sunLight);
     emit('ec/ea', ea);
     emit('ec/ecb', ecb);
