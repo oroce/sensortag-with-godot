@@ -4,7 +4,7 @@ var FlowerPower = require('flower-power');
 var series = require('run-series');
 var deepextend = require('deep-extend');
 var debug = require('debug')('swg:device:flower-power');
-var Producer = producer(function ctor() {
+var Producer = producer(function ctor(options) {
   this.uuid = options.uuid;
   debug('initialized sensortag with %s', this.uuid || '<empty uuid>');
   this.filter = function(device) {
