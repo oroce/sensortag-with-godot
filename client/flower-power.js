@@ -6,7 +6,7 @@ var deepextend = require('deep-extend');
 var debug = require('debug')('swg:device:flower-power');
 var Producer = producer(function ctor(options) {
   this.uuid = options.uuid;
-  debug('initialized sensortag with %s', this.uuid || '<empty uuid>');
+  debug('initialized flower power with %s', this.uuid || '<empty uuid>');
   this.filter = function(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
@@ -32,7 +32,7 @@ var Producer = producer(function ctor(options) {
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  SensorTag.stopDiscoverAll(this.filter);
+  FlowerPower.stopDiscoverAll(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;
