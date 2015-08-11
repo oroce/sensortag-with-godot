@@ -46,15 +46,19 @@ Producer.prototype.onDiscover = function onDiscover(device) {
   var txPowerLevel = advertisement.txPowerLevel;
   series([
     function(cb) {
+      debug('connecting and setup');
       device.connectAndSetup(cb);
     },
     function(cb) {
+      debug('enable ir temperature');
       device.enableIrTemperature(cb);
     },
     function(cb) {
+      debug('enable humidity');
       device.enableHumidity(cb);
     },
     function(cb) {
+      debug('read ir temperature');
       device.readIrTemperature(function(err, object, ambient) {
         if (err) return cb(err);
         cb(null, {
@@ -64,6 +68,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       });
     },
     function(cb) {
+      debug('read humidity');
       device.readHumidity(function(err, temperature, humidity) {
         if (err) return cb(err);
         cb(null, {
@@ -73,12 +78,14 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       });
     },
     function(cb) {
+      debug('read battery level');
       if (device._peripheral.advertisement.serviceUuids.indexOf('180f') === -1) {
         return cb();
       }
       device.readBatteryLevel(cb);
     },
     function(cb) {
+      debug('update rssi');
       device._peripheral.updateRssi(cb);
     }
   ], function(err, results) {
@@ -86,7 +93,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       self.emit('error', err);
       // do not return, maybe we could grab some data
     }
-    debug('data arrived: %j', results);
+    debug('data arrived: %j (%s)', results, err || '<no error>');
     results || (results = []);
     var temp = results[3];
     var humidity = results[4];
