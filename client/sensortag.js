@@ -86,6 +86,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       self.emit('error', err);
       // do not return, maybe we could grab some data
     }
+    debug('data arrived: %j', results);
     results || (results = []);
     var temp = results[3];
     var humidity = results[4];
@@ -103,30 +104,33 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       tags: ['st-connection']
     });
 
+    if (temp) {
+      self.emit('data', {
+        host: device.uuid,
+        service: 'temperature/ambient',
+        meta: {
+          uuid: device.uuid,
+          rssi: rssi,
+          battery: battery
+        },
+        tags: ['st-metric'],
+        metric: temp.ambient
+      });
+    }
 
-    self.emit('data', {
-      host: device.uuid,
-      service: 'temperature/ambient',
-      meta: {
-        uuid: device.uuid,
-        rssi: rssi,
-        battery: battery
-      },
-      tags: ['st-metric'],
-      metric: temp.ambient
-    });
-
-    self.emit('data', {
-      host: device.uuid,
-      service: 'humidity/humidity',
-      meta: {
-        uuid: device.uuid,
-        rssi: rssi,
-        battery: battery
-      },
-      tags: ['st-metric'],
-      metric: humidity.humidity
-    });
+    if (humidity) {
+      self.emit('data', {
+        host: device.uuid,
+        service: 'humidity/humidity',
+        meta: {
+          uuid: device.uuid,
+          rssi: rssi,
+          battery: battery
+        },
+        tags: ['st-metric'],
+        metric: humidity.humidity
+      });
+    }
 
     self.emit('data', {
       host: device.uuid,
