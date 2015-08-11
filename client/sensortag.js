@@ -6,8 +6,9 @@ var NobleDevice = require('sensortag/node_modules/noble-device');
 NobleDevice.Util.mixin(SensorTag, NobleDevice.BatteryService);
 var debug = require('debug')('swg:device:sensortag');
 SensorTag.SCAN_DUPLICATES = true;
-
 var series = require('run-series');
+require('./discover')(SensorTag);
+
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized sensortag with %s', this.uuid || '<empty uuid>');
@@ -25,17 +26,17 @@ var Producer = producer(function ctor(options) {
   this.on('error', console.error.bind(console));
 }, function produce() {
   debug('producing, stopping and restarting discovery');
-  SensorTag.stopDiscoverAll(this.filter);
+  SensorTag.stopDiscoverThis(this.filter);
   if (this.device) {
     this.device.disconnect();
     this.device = null;
   }
-  SensorTag.discoverAll(this.filter);
+  SensorTag.discoverThis(this.filter);
 });
 module.exports = Producer
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  SensorTag.stopDiscoverAll(this.filter);
+  SensorTag.stopDiscoverThis(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;

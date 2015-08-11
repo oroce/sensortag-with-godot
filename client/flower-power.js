@@ -4,6 +4,7 @@ var FlowerPower = require('flower-power');
 var series = require('run-series');
 var deepextend = require('deep-extend');
 var debug = require('debug')('swg:device:flower-power');
+require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
@@ -21,18 +22,18 @@ var Producer = producer(function ctor(options) {
   this.on('error', console.error.bind(console));
 }, function produce() {
   debug('producing, stopping and restarting discovery');
-  FlowerPower.stopDiscoverAll(this.filter);
+  FlowerPower.stopDiscoverThis(this.filter);
   if (this.device) {
     this.device.disconnect();
     this.device = null;
   }
-  FlowerPower.discoverAll(this.filter);
+  FlowerPower.discoverThis(this.filter);
 });
 
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  FlowerPower.stopDiscoverAll(this.filter);
+  FlowerPower.stopDiscoverThis(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;

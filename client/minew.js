@@ -5,9 +5,9 @@
 var producer = require('godot-producer');
 var MiniBeacon = require('minew-minibeacon')
 var debug = require('debug')('swg:device:minibeacon');
-//MiniBeacon.SCAN_DUPLICATES = true;
-
 var series = require('run-series');
+require('./discover')(MiniBeacon);
+
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized MiniBeacon with %s', this.uuid || '<empty uuid>');
@@ -25,18 +25,18 @@ var Producer = producer(function ctor(options) {
   this.on('error', console.error.bind(console));
 }, function produce() {
   debug('producing, stopping and restarting discovery');
-  MiniBeacon.stopDiscoverAll(this.filter);
+  MiniBeacon.stopDiscoverThis(this.filter);
   if (this.device) {
     this.device.disconnect();
     this.device = null;
   }
-  MiniBeacon.discoverAll(this.filter);
+  MiniBeacon.discoverThis(this.filter);
 });
 
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  MiniBeacon.stopDiscoverAll(this.filter);
+  MiniBeacon.stopDiscoverThis(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;

@@ -18,7 +18,7 @@
     "debug": "^0.8.1",
     "deep-extend": "^0.4.0",
     "dotenv": "^1.2.0",
-    "flower-power": "^0.2.1",
+    "flower-power": "git://github.com/oroce/node-flower-power",
     "godot": "git://github.com/nodejitsu/godot",
     "godot-influxdb": "~0.1.1",
     "godot-producer": "0.0.1",
