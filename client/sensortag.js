@@ -163,7 +163,9 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       metric: battery
     });
 
-    self.device.disconnect();
-    self.device = null;
+    if (self.device) {
+      self.device.disconnect();
+      self.device = null;
+    }
   });
 };
