@@ -6,20 +6,24 @@ var path = require('path');
 var seq = new Seq(path.join(__dirname, 'sequence.seq'));
 var seqNum = seq.readSync();
 var debug = require('debug')('client:flower-power-cloud');
+var ago = require('time-ago')().ago;
 module.exports = producer(function ctor(options) {
   //this.seqNum = options.segNum || seqNum;
+  debug('New instance, opts=%j', options);
   this.options = options;
-  var tenDaysAgo = new Date();
-  tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
-  tenDaysAgo.setHours(tenDaysAgo.getHours() + 1);
-  if (seq.seq == null || seq.seq < +tenDaysAgo) {
-    debug('No sequence or old (%s), saving %s', seq.seq, +tenDaysAgo);
-    seq.save(+tenDaysAgo);
+  var tenDaysago = new Date();
+  tenDaysago.setDate(tenDaysago.getDate() - 10);
+  tenDaysago.setHours(tenDaysago.getHours() + 1);
+  if (seq.seq == null || seq.seq < +tenDaysago) {
+    debug('No sequence or old (%s - %s), saving %s - %s', ago(seq.seq || 0), seq.seq, ago(+tenDaysago), +tenDaysago);
+    seq.save(tenDaysago.valueOf());
+  } else {
+    debug('applied seq is: %s - %s', ago(seq.seq), seq.seq);
   }
 }, function produce() {
   var self = this;
   var options = this.options;
-  debug('starting produce');
+  debug('starting produce, opts=%j', options);
   auth({
     clientId: options.clientId,
     clientSecret: options.clientSecret,
@@ -42,7 +46,7 @@ module.exports = producer(function ctor(options) {
         self.emit('error', err);
         return;
       }
-      //console.log(data);
+      console.log(data);
       data.samples.forEach(function(metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
@@ -67,8 +71,8 @@ module.exports = producer(function ctor(options) {
           time: +time
         });
       });
-      debug('saving new until: %s', until);
-      seq.save(+until);
+      debug('saving new until: %s - %s', ago(+until), until);
+      seq.save(until.valueOf());
     });
   });
 });
@@ -86,6 +90,7 @@ function auth(options, cb) {
     },
     json: true
   }, function(err, response, json) {
+    console.log('auth resp', json, err)
     if (err) {
       return cb(err);
     }

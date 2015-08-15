@@ -24,11 +24,11 @@ var Dummy = producer(function() {
 });
 
 var producers = [];
-debug('is sensortag enabled: %s', config.sensortag.enabled);
 
 function add(type, ctor) {
   if (config[type].enabled) {
-    if (config[type].uuids.length) {
+    // flower power cloud
+    if ((config[type].uuids || []).length) {
       config[type].uuids.forEach(function(uuid, i) {
         debug('adding %s. %s with uuid %s and ttl:%s',
           i,
@@ -41,16 +41,15 @@ function add(type, ctor) {
         }));
       });
     } else {
-      debug('adding an uuidless %s with ttl: %s', type, config[type].ttl);
-      producers.push(ctor({
-        ttl: config[type].ttl
-      }));
+      debug('adding an uuidless %s with opts: %j', type, config[type]);
+      producers.push(ctor(config[type]));
     }
   }
 }
 add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
+add('flowerPowerCloud', flowerPowerCloudProducer);
 
 var client = godot.createClient({
   type: 'tcp',

@@ -1,6 +1,6 @@
 'use strict';
 
-require('dotenv').load();
+require('dotenv').load({path: __dirname + '/.env'});
 
 var ttl = +process.env.TTL || 1000 * 15;
 var uuids = {
@@ -11,7 +11,8 @@ var uuids = {
 var enabled = {
   sensortag: deviceEnabled('sensortag'),
   minew: deviceEnabled('minew'),
-  flowerPower: deviceEnabled('flower_power')
+  flowerPower: deviceEnabled('flower_power'),
+  flowerPowerCloud: deviceEnabled('flower_power_cloud')
 };
 
 module.exports = {
@@ -31,7 +32,8 @@ module.exports = {
     clientSecret: process.env.FLOWER_POWER_CLOUD_CLIENT_SECRET,
     username: process.env.FLOWER_POWER_CLOUD_USERNAME,
     password: process.env.FLOWER_POWER_CLOUD_PASSWORD,
-    location: process.env.FLOWER_POWER_CLOUD_LOCATION
+    location: process.env.FLOWER_POWER_CLOUD_LOCATION,
+    enabled: enabled.flowerPowerCloud
   },
   flowerPower: {
     ttl: +process.env.FLOWER_POWER_TTL || ttl,
