@@ -24,7 +24,7 @@
     "godot-producer": "0.0.1",
     "memory-producer": "^0.1.1",
     "mocha": "^2.2.5",
-    "noble": "^1.0.1",
+    "noble": "^1.1.0",
     "proxyquire": "^1.6.0",
     "queue": "^3.1.0",
     "request": "^2.54.0",
