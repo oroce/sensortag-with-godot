@@ -51,7 +51,12 @@ function add(type, ctor) {
 add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
-
+if (config.rpi) {
+  producers.push(temperature({
+    host: 'rpi',
+    service: 'rpi/temperature'
+  }));
+}
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {
