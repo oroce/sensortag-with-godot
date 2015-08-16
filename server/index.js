@@ -5,11 +5,31 @@ var debug = require('debug')('sensortag:server');
 var port = +process.env.PORT || 1337;
 var format = require('util').format;
 debug('server will listen on %s', port);
-
+var async = require('async');
 var tagged = new (godot.tagged)('any', 'st-metric');
 var expiry = +process.env.EXPIRY || 1000 * 10;
 var throttle = +process.env.THROTTLE || 1000 * 60;
 debug('expiry=%s, throttle=%s', expiry, throttle);
+var influxReactor = influx({
+  host: 'localhost',
+  port: 8086,
+  user: process.env.INFLUXDB_USER || '',
+  password: process.env.INFLUXDB_PASSWORD || '',
+  database: process.env.INFLUXDB_DB || 'test'
+});
+var writeQueue = async.queue(function(data, cb) {
+  var point = influxReactor.format(data);
+  influxReactor.client.writePoint(point.name, point.metric, function(err) {
+    if (err) {
+      influxReactor.emit('reactor:error', err);
+    }
+    cb(err);
+  });
+}, 2);
+influxReactor.write = function write(data) {
+  writeQueue.push(data);
+  this.emit('data', data);
+};
 
 var server = godot.createServer({
   type: 'tcp',
@@ -19,13 +39,7 @@ var server = godot.createServer({
         .pipe(godot.console(function(d){
           console.log(JSON.stringify(d, null, 2));
         }))
-        .pipe(influx({
-          host: 'localhost',
-          port: 8086,
-          user: process.env.INFLUXDB_USER || '',
-          password: process.env.INFLUXDB_PASSWORD || '',
-          database: process.env.INFLUXDB_DB || 'test'
-        }));
+        .pipe(influxReactor);
     },
     function down(socket) {
       return socket
