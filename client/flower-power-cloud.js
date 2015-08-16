@@ -46,31 +46,49 @@ module.exports = producer(function ctor(options) {
         self.emit('error', err);
         return;
       }
-      console.log(data);
+
       data.samples.forEach(function(metric) {
+        return;
         var time = new Date(metric.capture_ts);
         self.emit('data', {
-          service: 'light',
+          service: 'light/percent',
           metric: metric.par_umole_m2s,
-          host: 'flower-power-cloud',
-          tags: ['flower-power'],
+          host: 'api.flower-power-cloud.com',
+          tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'temperature/air',
           metric: metric.air_temperature_celsius,
-          host: 'flower-power-cloud',
-          tags: ['flower-power'],
+          host: 'api.flower-power-cloud.com',
+          tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'soil/moisture',
           metric: metric.vwc_percent,
-          host: 'flower-power-cloud',
+          host: 'api.flower-power-cloud.com',
           tags: ['flower-power'],
           time: +time
         });
       });
+      data.fertilizer
+        .filter(function(fertilizer) {
+          var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
+
+          return then > from;
+        })
+        .forEach(function(fertilizer) {
+          self.emit('data', {
+            service: 'fertilizer/level',
+            metric: fertilizer.fertilizer_level,
+            id: fertilizer.id,
+            meta: fertilizer,
+            time: +(new Date(fertilizer.watering_cycle_end_date_time_utc)),
+            tags: ['flower-power-cloud'],
+            host: 'api.flower-power-cloud.com'
+          });
+        });
       debug('saving new until: %s - %s', ago(+until), until);
       seq.save(until.valueOf());
     });

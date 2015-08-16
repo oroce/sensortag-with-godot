@@ -115,3 +115,9 @@ client.connect(port, host, function(err) {
   }
   console.log('Connected to %s:%s', host, port);
 });
+
+if (config.lead) {
+  producers.forEach(function(producer) {
+    producer.produce();
+  });
+}
