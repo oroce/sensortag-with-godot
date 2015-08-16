@@ -42,6 +42,12 @@ module.exports = {
     ttl: +process.env.FLOWER_POWER_TTL || ttl,
     enabled: uuids.flowerPower.length || enabled.flowerPower,
     uuids: uuids.flowerPower
+  },
+  weather: {
+    key: process.env.WEATHER_KEY,
+    location: process.env.WEATHER_LOCATION,
+    enabled: process.env.WEATHER_KEY && process.env.WEATHER_LOCATION,
+    ttl: +process.env.WEATHER_TTL || ttl
   }
 };
 function deviceEnabled(name) {
