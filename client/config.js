@@ -18,6 +18,7 @@ var enabled = {
 module.exports = {
   lead: process.env.LEAD,
   rpi: process.env.RPI,
+  dummy: process.env.DUMMY,
   sensortag: {
     ttl: +process.env.SENSORTAG_TTL || ttl,
     enabled: uuids.sensortag.length || enabled.sensortag,

@@ -56,7 +56,9 @@ if (config.rpi) {
     service: 'rpi/temperature'
   }));
 }
-
+if (config.dummy) {
+  producers.push(Dummy({ttl: +config.dummy || 600}));
+}
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {
