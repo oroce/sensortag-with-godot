@@ -48,7 +48,6 @@ module.exports = producer(function ctor(options) {
       }
 
       data.samples.forEach(function(metric) {
-        return;
         var time = new Date(metric.capture_ts);
         self.emit('data', {
           service: 'light/percent',
@@ -72,12 +71,13 @@ module.exports = producer(function ctor(options) {
           time: +time
         });
       });
-      data.fertilizer
+      var fertilizers = data.fertilizer
         .filter(function(fertilizer) {
           var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
 
           return then > from;
-        })
+        });
+      fertilizers
         .forEach(function(fertilizer) {
           self.emit('data', {
             service: 'fertilizer/level',
@@ -89,6 +89,10 @@ module.exports = producer(function ctor(options) {
             host: 'api.flower-power-cloud.com'
           });
         });
+      if (fertilizers.length === 0 && data.samples.length === 0) {
+        debug('No need to save the new until (%s) because there was no samples nor fertilizers.', until);
+        return;
+      }
       debug('saving new until: %s - %s', ago(+until), until);
       seq.save(until.valueOf());
     });
