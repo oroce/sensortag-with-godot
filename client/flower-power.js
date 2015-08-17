@@ -97,6 +97,8 @@ Producer.prototype.onDiscover = function onDiscover(device) {
     emit('ec/ea', ea);
     emit('ec/ecb', ecb);
     emit('ec/porous', ecPorous);
+    emit('battery/level', battery);
+    emit('rssi/level', rssi);
     self.device.disconnect();
     self.device = null;
     function emit(service, metric, obj) {
