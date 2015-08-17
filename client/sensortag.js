@@ -111,7 +111,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
       tags: ['st-connection']
     });
 
-    if (temp) {
+    if (temp && temp !== 0) {
       self.emit('data', {
         host: device.uuid,
         service: 'temperature/ambient',
