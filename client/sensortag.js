@@ -91,6 +91,8 @@ Producer.prototype.onDiscover = function onDiscover(device) {
   ], function(err, results) {
     if (err) {
       self.emit('error', err);
+      // keep discovering because we failed
+      SensorTag.discoverThis(self.filter);
       // do not return, maybe we could grab some data
     }
     debug('data arrived: %j (%s)', results, err || '<no error>');
