@@ -2,7 +2,7 @@
 
 var producer = require('godot-producer');
 var SensorTag = require('sensortag').CC2540;
-var NobleDevice = require('sensortag/node_modules/noble-device');
+var NobleDevice = require('noble-device');
 NobleDevice.Util.mixin(SensorTag, NobleDevice.BatteryService);
 var debug = require('debug')('swg:device:sensortag');
 SensorTag.SCAN_DUPLICATES = true;
