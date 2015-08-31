@@ -30,7 +30,7 @@
     "proxyquire": "^1.6.0",
     "request": "^2.54.0",
     "run-series": "^1.1.1",
-    "sensortag": "^1.0.2",
+    "sensortag": "^1.1.1",
     "seq-file": "^1.2.1",
     "should": "^7.0.2",
     "time-ago": "^0.1.0",
