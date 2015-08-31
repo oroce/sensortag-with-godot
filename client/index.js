@@ -1,7 +1,8 @@
 'use strict';
 var config = require('./config');
 var godot = require('godot');
-//var sensortag = require('godot-sensortag');
+var async = require('async');
+var retry = require('retry-me');
 var debug = require('debug')('swg:client');
 var temperature = require('./temperature');
 var memory = require('memory-producer');
@@ -119,6 +120,59 @@ client
   .on('reconnect', function onreconnect() {
     debug('trying to reconnect');
   });
+client.msgQueue = async.queue(function(data, cb) {
+  var tries = 0;
+  debug('message has been started processed, len=%s', client.msgQueue.length());
+  retry(function trySend(fn) {
+    debug('Trying to send for %s, what=%j', ++tries, data);
+
+    // reasons:
+    // * this.socket gets redefined
+    // * simple socket timeout
+    // * some kind of woodoo magic
+    var tick = setTimeout(function() {
+      fn(new Error('timedout'));
+    }, 5000);
+    client._write(data, function(err, resp) {
+      clearTimeout(tick);
+      fn(err,resp);
+    });
+  }, {
+    retries: 1e6,
+    factor: 2,
+    minTimeout: 10000,
+    maxTimeout: 2000000,
+    randomize: true
+  }, function(err, data) {
+    if (err) {
+      debug('Failed to send for %s, reason=%s, what=%j', tries, err.toString(), data);
+      return cb(err);
+    }
+    debug('Managed to send for %s', tries);
+    cb();
+  });
+}, 1);
+
+client._write = function _write(data, cb) {
+  var message = !Array.isArray(data)
+  ? JSON.stringify(data) + '\n'
+  : data.map(JSON.stringify).join('\n') + '\n'
+  if (this.type === 'tcp' || this.type === 'unix') {
+    if (!this.socket) {
+      return cb && cb(new Error('Socket isnt ready yet'));
+    }
+    this.socket.write(message, cb);
+  }
+  else if (this.type === 'udp') {
+    message = new Buffer(message);
+    this.socket && this.socket.send(message, 0, message.length, this.port, this.host);
+    cb && cb();
+  }
+};
+client.write = function(data) {
+  //console.log('data', data);
+  client.msgQueue.push(data);
+};
 client.connect(port, host, function(err) {
   if (err) {
     console.error(err);
@@ -131,3 +185,7 @@ if (config.lead) {
     producer.produce();
   });
 }
+process.on('uncaughtException', function(err) {
+  console.error(err);
+  process.exit(1);
+});
