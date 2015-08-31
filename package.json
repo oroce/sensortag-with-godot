@@ -27,6 +27,7 @@
     "minew-minibeacon": "^1.0.0",
     "mocha": "^2.2.5",
     "noble": "^1.0.2",
+    "noble-device": "^1.1.0",
     "proxyquire": "^1.6.0",
     "request": "^2.54.0",
     "run-series": "^1.1.1",
