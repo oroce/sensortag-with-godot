@@ -5,7 +5,8 @@ var series = require('run-series');
 var waterfall = require('run-waterfall');
 var debug = require('debug')('swg:device:flower-power-history');
 require('./discover')(FlowerPower);
-var Producer = producer(function ctor() {
+var Producer = producer(function ctor(options) {
+  options = (options || {});
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
   this.filter = function(device) {
