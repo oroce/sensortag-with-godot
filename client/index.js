@@ -12,6 +12,7 @@ var sensortagProducer = require('./sensortag');
 var minewProducer = require('./minew');
 var flowerPowerProducer = require('./flower-power');
 var flowerPowerCloudProducer = require('./flower-power-cloud');
+var flowerPowerHistoryProducer = require('./flower-power-history');
 var weatherProducer = require('./weather');
 var Dummy = producer(function() {
   this.ndx = 0;
@@ -51,6 +52,7 @@ add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
 add('flowerPowerCloud', flowerPowerCloudProducer);
+add('flowerPowerHistory', flowerPowerHistory);
 add('weather', weatherProducer);
 if (config.rpi) {
   producers.push(temperature({
