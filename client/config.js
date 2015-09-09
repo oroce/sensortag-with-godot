@@ -6,14 +6,14 @@ var ttl = +process.env.TTL || 1000 * 15;
 var uuids = {
   sensortag: deviceUuids('sensortag'),
   minew: deviceUuids('minew'),
-  flowerPower: deviceUuids('flower_power')
+  flowerPower: deviceUuids('flower_power'),
   flowerPowerHistory: deviceUuids('flower_power_history')
 };
 var enabled = {
   sensortag: deviceEnabled('sensortag'),
   minew: deviceEnabled('minew'),
   flowerPower: deviceEnabled('flower_power'),
-  flowerPowerCloud: deviceEnabled('flower_power_cloud')
+  flowerPowerCloud: deviceEnabled('flower_power_cloud'),
   flowerPowerHistory: deviceEnabled('flower_power_history')
 };
 
