@@ -48,7 +48,12 @@ module.exports = {
   flowerPowerHistory: {
     ttl: +process.env.FLOWER_POWER_HISTORY_TTL || ttl,
     enabled: uuids.flowerPowerHistory.length || enabled.flowerPowerHistory,
-    uuids: uuids.flowerPowerHistory
+    uuids: uuids.flowerPowerHistory,
+    clientId: process.env.FLOWER_POWER_CLOUD_CLIENT_ID,
+    clientSecret: process.env.FLOWER_POWER_CLOUD_CLIENT_SECRET,
+    username: process.env.FLOWER_POWER_CLOUD_USERNAME,
+    password: process.env.FLOWER_POWER_CLOUD_PASSWORD,
+    location: process.env.FLOWER_POWER_CLOUD_LOCATION
   },
   weather: {
     key: process.env.WEATHER_KEY,

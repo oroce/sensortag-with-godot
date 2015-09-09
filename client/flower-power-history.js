@@ -8,6 +8,7 @@ var cloud = require('./cloud');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   options = (options || {});
+  this.options = options;
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
   this.filter = function(device) {
