@@ -4,6 +4,7 @@ var FlowerPower = require('flower-power');
 var series = require('run-series');
 var waterfall = require('run-waterfall');
 var debug = require('debug')('swg:device:flower-power-history');
+var cloud = require('./cloud');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   options = (options || {});
