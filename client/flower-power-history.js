@@ -117,7 +117,9 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
           cb(null, params);
         });
       },*/
-      function(params, cb) {
+      function(token, cb) {
+        var params = {};
+        params.token = token;
         params.history = history;
         params.currentId = currentSessionID;
         params.startupTime = startupTime;
