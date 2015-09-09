@@ -7,12 +7,14 @@ var uuids = {
   sensortag: deviceUuids('sensortag'),
   minew: deviceUuids('minew'),
   flowerPower: deviceUuids('flower_power')
+  flowerPowerHistory: deviceUuids('flower_power_history')
 };
 var enabled = {
   sensortag: deviceEnabled('sensortag'),
   minew: deviceEnabled('minew'),
   flowerPower: deviceEnabled('flower_power'),
   flowerPowerCloud: deviceEnabled('flower_power_cloud')
+  flowerPowerHistory: deviceEnabled('flower_power_history')
 };
 
 module.exports = {
@@ -42,6 +44,11 @@ module.exports = {
     ttl: +process.env.FLOWER_POWER_TTL || ttl,
     enabled: uuids.flowerPower.length || enabled.flowerPower,
     uuids: uuids.flowerPower
+  },
+  flowerPowerHistory: {
+    ttl: +process.env.FLOWER_POWER_HISTORY_TTL || ttl,
+    enabled: uuids.flowerPowerHistory.length || enabled.flowerPowerHistory,
+    uuids: uuids.flowerPowerHistory
   },
   weather: {
     key: process.env.WEATHER_KEY,
