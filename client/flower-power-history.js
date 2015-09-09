@@ -34,6 +34,7 @@ module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   var options = this.options;
+  var self = this;
   var lastEntryIdx;
   var currentSessionID;
   var currentSessionStartIdx;
