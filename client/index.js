@@ -52,7 +52,7 @@ add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
 add('flowerPowerCloud', flowerPowerCloudProducer);
-add('flowerPowerHistory', flowerPowerHistory);
+add('flowerPowerHistory', flowerPowerHistoryProducer);
 add('weather', weatherProducer);
 if (config.rpi) {
   producers.push(temperature({
