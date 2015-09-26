@@ -29,6 +29,6 @@ function stopDiscoverThis(discoverCallback) {
 }
 
 function mixin(constructor) {
-  constructor.discoverThis = discoverThis;
-  constructor.stopDiscoverThis = stopDiscoverThis;
+  constructor.discoverThis = constructor.discoverThis || discoverThis;
+  constructor.stopDiscoverThis = constructor.stopDiscoverThis || stopDiscoverThis;
 }

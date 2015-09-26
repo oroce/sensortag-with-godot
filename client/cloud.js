@@ -22,7 +22,7 @@ module.exports.auth = auth;
 
 function get(options, cb) {
   request({
-    url: 'https://apiflowöerpower.parrot.com/sensor_data/v2/sample/location/' + options.location,
+    url: 'https://apiflowerpower.parrot.com/sensor_data/v2/sample/location/' + options.location,
     headers: {
       'Authorization': 'Bearer ' + options.token
     },

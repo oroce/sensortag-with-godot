@@ -1,5 +1,6 @@
 'use strict';
 var config = require('./config');
+console.log('config', config);
 var godot = require('godot');
 //var sensortag = require('godot-sensortag');
 var debug = require('debug')('swg:client');
@@ -48,6 +49,7 @@ function add(type, ctor) {
     }
   }
 }
+
 add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
