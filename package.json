@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "client": "node client/index",
     "server": "node server/index",
-    "client-test": "mocha -r should client/*.spec.js"
+    "client-test": "mocha -r should client/*.spec.js",
+    "preinstall": "npm i node-gyp-install && node-gyp-install"
   },
   "author": "",
   "license": "ISC",
