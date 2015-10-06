@@ -1,7 +1,6 @@
 'use strict';
 
 require('dotenv').load({path: __dirname + '/.env'});
-
 var ttl = +process.env.TTL || 1000 * 15;
 var uuids = {
   sensortag: deviceUuids('sensortag'),
@@ -12,7 +11,8 @@ var enabled = {
   sensortag: deviceEnabled('sensortag'),
   minew: deviceEnabled('minew'),
   flowerPower: deviceEnabled('flower_power'),
-  flowerPowerCloud: deviceEnabled('flower_power_cloud')
+  flowerPowerCloud: deviceEnabled('flower_power_cloud'),
+  uptime: deviceEnabled('uptime')
 };
 
 module.exports = {
@@ -48,6 +48,11 @@ module.exports = {
     location: process.env.WEATHER_LOCATION,
     enabled: process.env.WEATHER_KEY && process.env.WEATHER_LOCATION,
     ttl: +process.env.WEATHER_TTL || ttl
+  },
+  uptime: {
+    enabled: enabled.uptime,
+    service: process.env.UPTIME_SERVICE,
+    ttl: 10000
   }
 };
 function deviceEnabled(name) {
