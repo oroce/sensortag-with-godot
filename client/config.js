@@ -52,7 +52,7 @@ module.exports = {
   uptime: {
     enabled: enabled.uptime,
     service: process.env.UPTIME_SERVICE,
-    ttl: 10000
+    ttl: +process.env.UPTIME_TTL || ttl
   }
 };
 function deviceEnabled(name) {
