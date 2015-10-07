@@ -34,7 +34,6 @@ influxReactor.write = function write(data) {
 };
 var reactors = [];
 if (config.uptime.enabled) {
-  console.log('adding uptime');
   reactors.push(function (socket) {
     var change = godot.change('metric');
     change.last = 0;
