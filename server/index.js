@@ -50,7 +50,7 @@ if (config.uptime.enabled) {
           return data.description;
         },
         body: function(data) {
-          return data.description + '\n\n' +
+          return data.description + '\n\n' + 'Went from: ' + reboot.last
           JSON.stringify(data, null, 2);
         }
       });
@@ -105,6 +105,41 @@ if (config.throttle.enabled) {
       );
   });
 }
+
+if (config.downtime.enabled) {
+  reactors.push(function downtime(socket) {
+    var notification;
+    if (config.email.enabled) {
+      notification = email({
+        auth: config.email.auth,
+        from: config.email.from,
+        to: config.email.to,
+        interval: 1,
+        host: config.email.host,
+        port: config.email.port,
+        subject: function(data) {
+          return data.host + ' is down';
+        },
+        body: function(data) {
+          return 'No ping from ' + data.host + ' since >' + data.ttl + '\n\n' +
+          JSON.stringify(data, null, 2);
+        }
+      });
+    } else {
+      reboot = godot.console(function(data) {
+        debug(data.description);
+      });
+    }
+    return socket
+      .pipe(godot.where('service', '*/uptime'))
+      .pipe(godot.expire(config.downtime.expire))
+      .pipe(notification);
+
+  });
+}
+reactors.forEach(function(reactor) {
+  debug('Added: %s', reactor.name || '<unnamed>:(');
+});
 var server = godot.createServer({
   type: 'tcp',
   reactors: reactors
