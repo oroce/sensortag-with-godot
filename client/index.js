@@ -14,6 +14,7 @@ var flowerPowerProducer = require('./flower-power');
 var flowerPowerCloudProducer = require('./flower-power-cloud');
 var weatherProducer = require('./weather');
 var uptimeProducer = require('./uptime');
+var akiProducer = require('./aki');
 var Dummy = producer(function() {
   this.ndx = 0;
 }, function() {
@@ -54,6 +55,7 @@ add('flowerPower', flowerPowerProducer);
 add('flowerPowerCloud', flowerPowerCloudProducer);
 add('weather', weatherProducer);
 add('uptime', uptimeProducer);
+add('aki', akiProducer);
 if (config.rpi) {
   producers.push(temperature({
     host: 'rpi',
