@@ -1,10 +1,10 @@
 'use strict';
-
+var boolean = require('boolean');
 require('dotenv').load({path: __dirname + '/.env'});
 var env = process.env.NODE_ENV || 'development';
 module.exports = {
   email: {
-    enabled: process.env.EMAIL_ENABLED || env === 'production',
+    enabled: boolean(process.env.EMAIL_ENABLED) || env === 'production',
     auth: {
       user: process.env.MANDRILL_USER,
       pass: process.env.MANDRILL_KEY
@@ -15,16 +15,16 @@ module.exports = {
     from: process.env.EMAIL_FROM,
   },
   throttle: {
-    enabled: process.env.THROTTLING_REACTOR || env === 'production',
+    enabled: boolean(process.env.THROTTLING_REACTOR) || env === 'production',
   },
   expire: {
-    enabled: process.env.EXPIRE_REACTOR || env === 'production'
+    enabled: boolean(process.env.EXPIRE_REACTOR) || env === 'production'
   },
   uptime: {
-    enabled: process.env.UPTIME_REACTOR || env === 'production'
+    enabled: boolean(process.env.UPTIME_REACTOR) || env === 'production'
   },
   influxdb: {
-    enabled: process.env.INFLUXDB_REACTOR || env === 'production',
+    enabled: boolean(process.env.INFLUXDB_REACTOR) || env === 'production',
     host: process.env.INFLUXDB_HOST || 'localhost',
     port: process.env.INFLUXDB_PORT || 8086,
     user: process.env.INFLUXDB_USER || '',
