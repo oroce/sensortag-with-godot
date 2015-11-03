@@ -53,6 +53,11 @@ module.exports = {
     enabled: enabled.uptime,
     service: process.env.UPTIME_SERVICE,
     ttl: +process.env.UPTIME_TTL || ttl
+  },
+  aki: {
+    enabled: enabled.aki || !!process.env.AKI_URL,
+    ttl: +process.env.AKI_TTL || ttl,
+    url: process.env.AKI_URL
   }
 };
 function deviceEnabled(name) {
