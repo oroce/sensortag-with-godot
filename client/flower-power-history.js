@@ -101,6 +101,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         startupTime: startupTime
       }
     });
+    debug('Data arrived, starting auth and upload phase');
     waterfall([
       cloud.auth.bind(cloud, {
         clientId: options.clientId,
