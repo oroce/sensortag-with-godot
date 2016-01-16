@@ -45,38 +45,58 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   debug('discovered device: %s', flowerPower.uuid);
   series([
     function(cb) {
-      flowerPower.connectAndSetup(cb);
+      debug('Connect and setup');
+      flowerPower.connectAndSetup(function(err, result) {
+        debug('connect and setup ended (%s, %j)', err, result);
+        cb(err, result);
+      });
     },
     function(cb) {
+      debug('getting last history entry idx');
       flowerPower.getHistoryLastEntryIdx(function(err, data) {
+        debug('got last history entry idx (%s, %j)', err, data);
         lastEntryIdx = data;
         cb(err);
       });
     },
     function(cb) {
+      debug('getting history current session idx');
       flowerPower.getHistoryCurrentSessionID(function(err, data) {
+        debug('got history current session idx (%s, %j)', err, data);
         currentSessionID = data;
         cb(err);
       });
     },
     function(cb) {
+      debug('getting history current session start idx');
       flowerPower.getHistoryCurrentSessionStartIdx(function(err, data) {
+        debug('got history current session start idx (%s, %j)', err, data);
         currentSessionStartIdx = data;
         cb(err);
       });
     },
     function(cb) {
+      debug('getting history current session period');
       flowerPower.getHistoryCurrentSessionPeriod(function(err, data) {
+        debug('got history current session period (%s, %j)', err, data);
         currentSessionPeriod = data;
         cb(err);
       });
     },
     function(cb) {
-      flowerPower.getStartupTime(cb);
+      debug('getting startup time');
+      flowerPower.getStartupTime(function(err, data) {
+        debug('got startup time (%s, %j)', err, data);
+        cb(err, data);
+      });
     },
     function(cb) {
       startIdx = lastEntryIdx - 200;
-      flowerPower.getHistory(startIdx, cb);
+      debug('getting history');
+      flowerPower.getHistory(startIdx, function(err, data) {
+        debug('got history (%s)', err);
+        cb(err, data);
+      });
     },
   ], function(err, data) {
     if (err) {
