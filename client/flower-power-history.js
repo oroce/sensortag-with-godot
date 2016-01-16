@@ -129,6 +129,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         params.currentSessionPeriod = currentSessionPeriod;
         params.userConfigVersion = 8;
         params.serial = 'A0143D000008DC92'; // wtf why no device.uuid
+        debug('upload about to start');
         cloud.upload(params, cb);
       }
     ], function(err, result) {

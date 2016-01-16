@@ -1,4 +1,5 @@
 var request = require('request');
+var debug = require('debug')('swg:parrot-cloud');
 function auth(options, cb) {
   request({
     url: 'https://apiflowerpower.parrot.com/user/v1/authenticate',
@@ -65,32 +66,35 @@ module.exports.garden = garden;
 function upload(options, cb) {
   options.date = options.date || new Date();
   var offset = (new Date()).getTimezoneOffset();
+  var url = 'https://apiflowerpower.parrot.com/sensor_data/v5/sample';
+  var body = {
+    'client_datetime_utc': options.date,
+    'user_config_version': options.userConfigVersion,
+    'tmz_offset': offset,
+    'session_histories': [{
+       'sensor_serial' : options.serial,
+       'session_id': options.currentId,
+       'sample_measure_period': options.currentSessionPeriod,
+       'sensor_startup_timestamp_utc': options.startupTime,
+       'session_start_index': options.currentSessionStartIdx
+    }],
+    'uploads': [{
+       'sensor_serial': options.serial,
+       'upload_timestamp_utc': options.date,
+       'buffer_base64': options.history,
+       'app_version': '',
+       'sensor_fw_version': '',
+       'sensor_hw_identifier' : '',
+    }]
+  };
+  debug('put to %s: %j', url, body);
   request({
     method: 'PUT',
-    url: 'https://apiflowerpower.parrot.com/sensor_data/v5/sample',
+    url: url,
     headers: {
       'Authorization': 'Bearer ' + options.token
     },
-    body: {
-      'client_datetime_utc': options.date,
-      'user_config_version': options.userConfigVersion,
-      'tmz_offset': offset,
-      'session_histories': [{
-         'sensor_serial' : options.serial,
-         'session_id': options.currentId,
-         'sample_measure_period': options.currentSessionPeriod,
-         'sensor_startup_timestamp_utc': options.startupTime,
-         'session_start_index': options.currentSessionStartIdx
-      }],
-      'uploads': [{
-         'sensor_serial': options.serial,
-         'upload_timestamp_utc': options.date,
-         'buffer_base64': options.history,
-         'app_version': '',
-         'sensor_fw_version': '',
-         'sensor_hw_identifier' : '',
-      }]
-    },
+    body: body,
     json: true
   }, function(err, resp, body) {
     console.log(err, body);
