@@ -158,8 +158,8 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         params.currentSessionPeriod = currentSessionPeriod;
         params.userConfigVersion = 8;
         params.serial = 'A0143D000008DC92'; // wtf why no device.uuid
-        dataBLE.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
-        dataBLE.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
+        params.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
+        params.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
 
         debug('upload about to start');
         cloud.upload(params, cb);
