@@ -83,8 +83,8 @@ function upload(options, cb) {
        'upload_timestamp_utc': options.date,
        'buffer_base64': options.history,
        'app_version': '',
-       'sensor_fw_version': '',
-       'sensor_hw_identifier' : '',
+       'sensor_fw_version': options.firmwareVersion,
+       'sensor_hw_identifier' : options.hardwareVersion,
     }]
   };
   debug('put to %s: %j', url, body);

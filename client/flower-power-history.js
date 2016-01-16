@@ -52,6 +52,12 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
       });
     },
     function(cb) {
+      flowerPower.readFirmwareRevision(cb);
+    },
+    function(cb) {
+      flowerPower.readHardwareRevision(cb);
+    },
+    function(cb) {
       debug('getting last history entry idx');
       flowerPower.getHistoryLastEntryIdx(function(err, data) {
         debug('got last history entry idx (%s, %j)', err, data);
@@ -106,8 +112,10 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
     }
     data = data || [];
     // find mapping of data
-    var startupTime = data[5];
-    var history = data[6];
+    var startupTime = data[7];
+    var history = data[8];
+    var firmwareVersion = data[1];
+    var hardwareVersion = data[2];
     var time = new Date();
     if (!history) {
       debug('Failed to get history');
@@ -150,6 +158,9 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         params.currentSessionPeriod = currentSessionPeriod;
         params.userConfigVersion = 8;
         params.serial = 'A0143D000008DC92'; // wtf why no device.uuid
+        dataBLE.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
+        dataBLE.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
+
         debug('upload about to start');
         cloud.upload(params, cb);
       }
