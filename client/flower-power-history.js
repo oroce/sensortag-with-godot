@@ -42,6 +42,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   var currentSessionStartIdx;
   var currentSessionPeriod;
   var startIdx;
+  debug('discovered device: %s', flowerPower.uuid);
   series([
     function(cb) {
       flowerPower.connectAndSetup(cb);
@@ -81,6 +82,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
     if (err) {
       self.emit('error', err);
       // do not return, maybe we have some data
+
     }
     data = data || [];
     // find mapping of data
@@ -139,7 +141,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         });
         return;
       }
-      console.log(result);
+      console.log('result', result);
       self.emit('data', {
         service: 'flowerpower/history-uploaded',
         state: 'ok',
