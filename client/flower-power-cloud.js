@@ -47,7 +47,7 @@ module.exports = producer(function ctor(options) {
         return;
       }
 
-      data.samples.forEach(function(metric) {
+      until = data.samples.reduce(function(prev, metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
           service: 'light/percent',
@@ -70,7 +70,8 @@ module.exports = producer(function ctor(options) {
           tags: ['flower-power'],
           time: +time
         });
-      });
+        return time;
+      }, until);
       var fertilizers = data.fertilizer
         .filter(function(fertilizer) {
           var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
