@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "client": "node client/index",
     "server": "node server/index",
-    "client-test": "mocha -r should client/*.spec.js"
+    "client-test": "mocha -r should client/*.spec.js",
+    "preinstall": "npm i node-gyp-install && node-gyp-install"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "async": "^1.4.2",
+    "bluetooth-hci-socket": "^0.3.3",
     "debug": "^0.8.1",
     "deep-extend": "^0.4.0",
     "dotenv": "^1.2.0",
@@ -28,6 +30,8 @@
     "mocha": "^2.2.5",
     "noble": "^1.0.2",
     "noble-device": "^1.1.0",
+    "nodemailer": "^1.5.0",
+    "nodemailer-smtp-transport": "^1.0.3",
     "proxyquire": "^1.6.0",
     "request": "^2.54.0",
     "run-series": "^1.1.1",
