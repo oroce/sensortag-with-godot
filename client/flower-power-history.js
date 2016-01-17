@@ -42,6 +42,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   var currentSessionStartIdx;
   var currentSessionPeriod;
   var startIdx;
+  this.device = flowerPower;
   debug('discovered device: %s', flowerPower.uuid);
   series([
     function(cb) {
@@ -113,6 +114,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
       // do not return, maybe we have some data
 
     }
+    self.device = null;
     data = data || [];
     // find mapping of data
     var startupTime = data[7];
