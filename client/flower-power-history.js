@@ -104,6 +104,9 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         cb(err, data);
       });
     },
+    function(cb) {
+      flowerPower.disconnect(cb);
+    }
   ], function(err, data) {
     if (err) {
       self.emit('error', err);
