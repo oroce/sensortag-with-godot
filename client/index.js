@@ -1,5 +1,6 @@
 'use strict';
 var config = require('./config');
+console.log('config', config);
 var godot = require('godot');
 //var sensortag = require('godot-sensortag');
 var debug = require('debug')('swg:client');
@@ -12,6 +13,7 @@ var sensortagProducer = require('./sensortag');
 var minewProducer = require('./minew');
 var flowerPowerProducer = require('./flower-power');
 var flowerPowerCloudProducer = require('./flower-power-cloud');
+var flowerPowerHistoryProducer = require('./flower-power-history');
 var weatherProducer = require('./weather');
 var uptimeProducer = require('./uptime');
 var Dummy = producer(function() {
@@ -48,10 +50,12 @@ function add(type, ctor) {
     }
   }
 }
+
 add('sensortag', sensortagProducer);
 add('minew', minewProducer);
 add('flowerPower', flowerPowerProducer);
 add('flowerPowerCloud', flowerPowerCloudProducer);
+add('flowerPowerHistory', flowerPowerHistoryProducer);
 add('weather', weatherProducer);
 add('uptime', uptimeProducer);
 if (config.rpi) {
