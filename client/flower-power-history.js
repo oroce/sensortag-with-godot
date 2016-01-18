@@ -32,9 +32,16 @@ var Producer = producer(function ctor(options) {
     this.device.disconnect();
     this.device = null;
   }
+  if (this.release) {
+    this.release();
+  }
   lock('flower-power', function(rls) {
     debug('lock received');
-    first([[this, 'data', 'error']], rls);
+    this.release = rls;
+    first([[this, 'data', 'error']], function() {
+      this.release = null;
+      rls();
+    }.bind(this));
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
 });
