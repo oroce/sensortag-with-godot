@@ -35,14 +35,14 @@ var Producer = producer(function ctor(options) {
     this.device = null;
   }
   if (this.release) {
-    this.release();
+    this.release(console.log.bind(console));
   }
   lock('flower-power', function(rls) {
     debug('lock received');
     this.release = rls;
     first([[this, 'data', 'error']], function() {
       this.release = null;
-      rls();
+      rls(console.log.bind(console));
     }.bind(this));
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
