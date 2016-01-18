@@ -23,12 +23,15 @@ var Producer = producer(function ctor(options) {
   }.bind(this);
   this.on('error', console.error.bind(console));
 }, function produce() {
-  debug('producing, stopping and restarting discovery');
+  var hasDevice = this.device != null;
+  var hasLock = this.release != null;
+  debug('producing, stopping and restarting discovery (lock=%s,rls=%s)', lock, rls);
   FlowerPower.stopDiscoverThis(this.filter);
   if (this.device) {
     this.device.disconnect();
     this.device = null;
   }
+
   if (this.release) {
     this.release();
   }
