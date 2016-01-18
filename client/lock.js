@@ -1,3 +1,3 @@
-var Lock = require('lock');
+var mutexify = require('mutexify');
 
-module.exports = new Lock();
+module.exports = mutexify();
