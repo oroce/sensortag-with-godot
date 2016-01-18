@@ -6,7 +6,7 @@ var waterfall = require('run-waterfall');
 var debug = require('debug')('swg:device:flower-power-history');
 var cloud = require('./cloud');
 var first = require('ee-first');
-var lock = require('lock');
+var lock = require('./lock');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   options = (options || {});

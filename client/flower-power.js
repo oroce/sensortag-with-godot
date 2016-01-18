@@ -5,7 +5,7 @@ var series = require('run-series');
 var deepextend = require('deep-extend');
 var debug = require('debug')('swg:device:flower-power');
 var first = require('ee-first');
-var lock = require('lock');
+var lock = require('./lock');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
