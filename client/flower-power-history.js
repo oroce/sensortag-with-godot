@@ -33,6 +33,7 @@ var Producer = producer(function ctor(options) {
     this.device = null;
   }
   lock('flower-power', function(rls) {
+    debug('lock received');
     first([this, 'data', 'error'], rls);
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
