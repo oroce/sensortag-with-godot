@@ -27,7 +27,10 @@ var Producer = producer(function ctor(options) {
     this.device.disconnect();
     this.device = null;
   }
-  FlowerPower.discoverThis(this.filter);
+  lock('flower-power', function(rls) {
+    first([this, 'data', 'error'], rls);
+    FlowerPower.discoverThis(this.filter);
+  }.bind(this));
 });
 
 module.exports = Producer;

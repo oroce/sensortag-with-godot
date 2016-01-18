@@ -5,6 +5,8 @@ var series = require('run-series');
 var waterfall = require('run-waterfall');
 var debug = require('debug')('swg:device:flower-power-history');
 var cloud = require('./cloud');
+var first = require('ee-first');
+var lock = require('lock');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   options = (options || {});
@@ -30,7 +32,10 @@ var Producer = producer(function ctor(options) {
     this.device.disconnect();
     this.device = null;
   }
-  FlowerPower.discoverThis(this.filter);
+  lock('flower-power', function(rls) {
+    first([this, 'data', 'error'], rls);
+    FlowerPower.discoverThis(this.filter);
+  }.bind(this));
 });
 module.exports = Producer;
 
