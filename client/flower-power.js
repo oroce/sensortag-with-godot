@@ -25,7 +25,7 @@ var Producer = producer(function ctor(options) {
 }, function produce() {
   var hasDevice = this.device != null;
   var hasLock = this.release != null;
-  debug('producing, stopping and restarting discovery (lock=%s,rls=%s)', lock, rls);
+  debug('producing, stopping and restarting discovery (device=%s,lock=%s)', hasDevice, hasLock);
   FlowerPower.stopDiscoverThis(this.filter);
   if (this.device) {
     this.device.disconnect();
