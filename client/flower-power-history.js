@@ -35,14 +35,21 @@ var Producer = producer(function ctor(options) {
     this.device = null;
   }
   if (this.release) {
-    this.release(console.log.bind(console));
+    debug('releasing lock');
+    this.release();
+  }
+  if (this.thunk) {
+    debug('cancelling thunk');
+    this.thunk.cancel();
   }
   lock('flower-power', function(rls) {
     debug('lock received');
     this.release = rls;
-    first([[this, 'data', 'error']], function() {
+    this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
+      debug('received %s, remove think, release', evt);
+      rls();
+      this.thunk = null;
       this.release = null;
-      rls(console.log.bind(console));
     }.bind(this));
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
@@ -121,6 +128,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
       });
     },
     function(cb) {
+      debug('disconnect');
       flowerPower.disconnect(cb);
     }
   ], function(err, data) {

@@ -32,3 +32,10 @@ function mixin(constructor) {
   constructor.discoverThis = constructor.discoverThis || discoverThis;
   constructor.stopDiscoverThis = constructor.stopDiscoverThis || stopDiscoverThis;
 }
+
+mixin.discoverThis = function(ctor, cb) {
+  discoverThis.call(ctor, cb);
+};
+mixin.stopDiscoverThis = function(ctor, cb) {
+  stopDiscoverThis.call(ctor, cb);
+}

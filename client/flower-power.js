@@ -33,14 +33,21 @@ var Producer = producer(function ctor(options) {
   }
 
   if (this.release) {
-    this.release(console.log.bind(console));
+    debug('releasing lock');
+    this.release();
+  }
+  if (this.thunk) {
+    debug('cancelling thunk');
+    this.thunk.cancel();
   }
   lock('flower-power', function(rls) {
     debug('lock received');
     this.release = rls;
-    first([[this, 'data', 'error']], function() {
+    this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
+      debug('received %s, remove think, release', evt);
+      rls();
+      this.thunk = null;
       this.release = null;
-      rls(console.log.bind(console));
     }.bind(this));
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
@@ -60,34 +67,48 @@ Producer.prototype.onDiscover = function onDiscover(device) {
   var flowerPower = device;
   series([
     function(cb) {
+      debug('connect and setup');
       flowerPower.connectAndSetup(cb);
     },
     function(cb) {
+      debug('read soil temp');
       flowerPower.readSoilTemperature(cb);
     },
     function(cb) {
+      debug('read calibrated soil');
       flowerPower.readCalibratedSoilMoisture(cb);
     },
     function(cb) {
+      debug('read calibrated air temp');
       flowerPower.readCalibratedAirTemperature(cb);
     },
     function(cb) {
+      debug('read sunlight');
       flowerPower.readCalibratedSunlight(cb);
     },
     function(cb) {
+      debug('read ea');
       flowerPower.readCalibratedEa(cb);
     },
     function(cb) {
+      debug('read ecb');
       flowerPower.readCalibratedEcb(cb);
     },
     function(cb) {
+      debug('read ec porous');
       flowerPower.readCalibratedEcPorous(cb);
     },
     function(cb) {
+      debug('read battery level');
       flowerPower.readBatteryLevel(cb);
     },
     function(cb) {
+      debug('update rssi');
       flowerPower._peripheral.updateRssi(cb);
+    },
+    function(cb) {
+      debug('disconnect');
+      flowerPower.disconnect(cb);
     }
   ], function(err, data) {
     if (err) {
@@ -115,7 +136,6 @@ Producer.prototype.onDiscover = function onDiscover(device) {
     emit('ec/porous', ecPorous);
     emit('battery/level', battery);
     emit('rssi/level', rssi);
-    self.device.disconnect();
     self.device = null;
     function emit(service, metric, obj) {
       service = 'flowerpower/' + service;
