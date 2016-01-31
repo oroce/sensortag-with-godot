@@ -11,10 +11,15 @@ var cloud = require('./cloud');
 var get = cloud.get;
 var auth = cloud.auth;
 var garden = cloud.garden;
-module.exports = producer(function ctor(options) {
+var Producer = producer(function ctor(options) {
   //this.seqNum = options.segNum || seqNum;
   debug('New instance, opts=%j', options);
+  if (!options.location) {
+    throw new Error('options.location is mandatory');
+  }
+
   this.options = options;
+
   var tenDaysago = new Date();
   tenDaysago.setDate(tenDaysago.getDate() - 10);
   tenDaysago.setHours(tenDaysago.getHours() + 1);
@@ -28,6 +33,17 @@ module.exports = producer(function ctor(options) {
   var self = this;
   var options = this.options;
   debug('starting produce, opts=%j', options);
+  if (Array.isArray(options.location)) {
+    return options.location.forEach(function(location) {
+      this.get(options, location);
+    }, this);
+  }
+  this.get(options, options.location);
+});
+module.exports = Producer;
+
+Producer.prototype.get = function(options, location) {
+  var self = this;
   auth({
     clientId: options.clientId,
     clientSecret: options.clientSecret,
@@ -44,7 +60,7 @@ module.exports = producer(function ctor(options) {
       token: token,
       from: from.toJSON(),
       until: until.toJSON(),
-      location: options.location
+      location: location
     }, function(err, data) {
       if (err) {
         self.emit('error', err);
@@ -56,21 +72,21 @@ module.exports = producer(function ctor(options) {
         self.emit('data', {
           service: 'light/percent',
           metric: metric.par_umole_m2s,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'temperature/air',
           metric: metric.air_temperature_celsius,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'soil/moisture',
           metric: metric.vwc_percent,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power'],
           time: +time
         });
@@ -91,7 +107,7 @@ module.exports = producer(function ctor(options) {
             meta: fertilizer,
             time: +(new Date(fertilizer.watering_cycle_end_date_time_utc)),
             tags: ['flower-power-cloud'],
-            host: 'api.flower-power-cloud.com'
+            host: 'api.' + location + '.flower-power-cloud.com',
           });
         });
       if (fertilizers.length === 0 && data.samples.length === 0) {
@@ -102,4 +118,4 @@ module.exports = producer(function ctor(options) {
       seq.save(until.valueOf());
     });
   });
-});
+};

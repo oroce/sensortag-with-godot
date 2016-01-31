@@ -38,7 +38,7 @@ module.exports = {
     clientSecret: process.env.FLOWER_POWER_CLOUD_CLIENT_SECRET,
     username: process.env.FLOWER_POWER_CLOUD_USERNAME,
     password: process.env.FLOWER_POWER_CLOUD_PASSWORD,
-    location: process.env.FLOWER_POWER_CLOUD_LOCATION,
+    location: split(process.env.FLOWER_POWER_CLOUD_LOCATION),
     enabled: enabled.flowerPowerCloud
   },
   flowerPower: {
