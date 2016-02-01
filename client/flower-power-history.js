@@ -129,7 +129,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
     },
     function(cb) {
       startIdx = lastEntryIdx - 200;
-      debug('getting history');
+      debug('getting history: %s', startIdx);
       flowerPower.getHistory(startIdx, function(err, data) {
         debug('got history (%s)', err);
         cb(err, data);
