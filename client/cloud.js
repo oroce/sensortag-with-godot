@@ -15,6 +15,7 @@ function auth(options, cb) {
     if (err) {
       return cb(err);
     }
+    debug('response (code=%s) received: %j', response.statusCode, json);
     cb(null, json.access_token);
   });
 }
