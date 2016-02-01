@@ -12,7 +12,7 @@ var Producer = producer(function ctor(options) {
   options = (options || {});
   this.options = options;
   var uuid = this.uuid = options.uuid;
-  debug('initialized flower power with %s', this.uuid || '<empty uuid>');
+  debug('initialized flower power with %s (%j)', this.uuid || '<empty uuid>', options);
   this.filter = function(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
