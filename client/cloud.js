@@ -87,7 +87,7 @@ function upload(options, cb) {
        'sensor_hw_identifier' : options.hardwareVersion,
     }]
   };
-  debug('put to %s: %j', url, body);
+  debug('put to %s: %j (options=%j)', url, body, options);
   request({
     method: 'PUT',
     url: url,

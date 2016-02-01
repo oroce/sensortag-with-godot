@@ -201,7 +201,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         params.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
         params.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
 
-        debug('upload about to start');
+        debug('upload about to start with params=%j', params);
         cloud.upload(params, cb);
       }
     ], function(err, result) {
