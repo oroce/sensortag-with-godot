@@ -65,6 +65,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   var currentSessionPeriod;
   var startIdx;
   this.device = flowerPower;
+  var uuid = peripheral.id || peripheral.uuid;
   debug('discovered device: %s', flowerPower.uuid);
   series([
     function(cb) {
@@ -120,6 +121,13 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
       });
     },
     function(cb) {
+      debug('getting system id');
+      flowerPower.readSystemId(function(err, sysId) {
+        debug('got system id (%s, %j)', err, sysId);
+        cb(err, sysId);
+      });
+    },
+    function(cb) {
       startIdx = lastEntryIdx - 200;
       debug('getting history');
       flowerPower.getHistory(startIdx, function(err, data) {
@@ -141,7 +149,9 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
     data = data || [];
     // find mapping of data
     var startupTime = data[7];
-    var history = data[8];
+    var systemId = data[8];
+    var serial = systemId.replace(/:/gm, '').toUpperCase();
+    var history = data[9];
     var firmwareVersion = data[1];
     var hardwareVersion = data[2];
     var time = new Date();
@@ -152,6 +162,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
     var offset = time.getTimezoneOffset();
     self.emit('data', {
       service: 'flowerpower/history',
+      host: uuid,
       meta: {
         history: history,
         startupTime: startupTime
@@ -185,7 +196,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         params.currentSessionStartIdx = currentSessionStartIdx;
         params.currentSessionPeriod = currentSessionPeriod;
         params.userConfigVersion = 8;
-        params.serial = 'A0143D000008DC92'; // wtf why no device.uuid
+        params.serial = serial; // wtf why no device.uuid
         params.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
         params.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
 
@@ -197,6 +208,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         self.emit('error', err);
         self.emit('data', {
           service: 'flowerpower/history-uploaded',
+          host: uuid,
           state: 'error',
           meta: err
         });
@@ -206,6 +218,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
       self.emit('data', {
         service: 'flowerpower/history-uploaded',
         state: 'ok',
+        host: uuid,
         meta: result
       });
     });

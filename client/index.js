@@ -1,6 +1,6 @@
 'use strict';
 var config = require('./config');
-console.log('config', config);
+
 var godot = require('godot');
 //var sensortag = require('godot-sensortag');
 var debug = require('debug')('swg:client');
@@ -16,6 +16,7 @@ var flowerPowerCloudProducer = require('./flower-power-cloud');
 var flowerPowerHistoryProducer = require('./flower-power-history');
 var weatherProducer = require('./weather');
 var uptimeProducer = require('./uptime');
+var extend = require('deep-extend');
 var Dummy = producer(function() {
   this.ndx = 0;
 }, function() {
@@ -44,6 +45,17 @@ function add(type, ctor) {
           ttl: config[type].ttl
         }));
       });
+    } else if (Array.isArray(config[type].location) && (config[type].location || []).length) {
+      config[type].location.forEach(function(location, i) {
+        debug('adding %s. %s with location %s and ttl:%s',
+          i,
+          type,
+          location,
+          config[type].ttl);
+        producers.push(ctor(extend({}, config[type], {
+          location: location
+        })));
+      });
     } else {
       debug('adding an uuidless %s with opts: %j', type, config[type]);
       producers.push(ctor(config[type]));
@@ -67,6 +79,7 @@ if (config.rpi) {
 if (config.dummy) {
   producers.push(Dummy({ttl: +config.dummy || 600}));
 }
+console.log('Producers.len=', producers.length)
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {

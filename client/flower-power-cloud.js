@@ -3,8 +3,6 @@ var producer = require('godot-producer');
 var request = require('request');
 var Seq = require('seq-file');
 var path = require('path');
-var seq = new Seq(path.join(__dirname, 'sequence.seq'));
-var seqNum = seq.readSync();
 var debug = require('debug')('client:flower-power-cloud');
 var ago = require('time-ago')().ago;
 var cloud = require('./cloud');
@@ -14,35 +12,34 @@ var garden = cloud.garden;
 var Producer = producer(function ctor(options) {
   //this.seqNum = options.segNum || seqNum;
   debug('New instance, opts=%j', options);
-  if (!options.location) {
+  if (!options || !options.location) {
     throw new Error('options.location is mandatory');
   }
 
   this.options = options;
 
+  this.seq = new Seq(path.join(__dirname, 'sequence-' + options.location + '.seq'));
+  this.seqNum = this.seq.readSync();
+
   var tenDaysago = new Date();
   tenDaysago.setDate(tenDaysago.getDate() - 10);
   tenDaysago.setHours(tenDaysago.getHours() + 1);
-  if (seq.seq == null || seq.seq < +tenDaysago) {
-    debug('No sequence or old (%s - %s), saving %s - %s', ago(seq.seq || 0), seq.seq, ago(+tenDaysago), +tenDaysago);
-    seq.save(tenDaysago.valueOf());
+  if (this.seq.seq == null || this.seq.seq < +tenDaysago) {
+    debug('No sequence or old (%s - %s), saving %s - %s', ago(this.seq.seq || 0), this.seq.seq, ago(+tenDaysago), +tenDaysago);
+    this.seq.save(tenDaysago.valueOf());
   } else {
-    debug('applied seq is: %s - %s', ago(seq.seq), seq.seq);
+    debug('applied seq is: %s - %s', ago(this.seq.seq), this.seq.seq);
   }
 }, function produce() {
-  var self = this;
   var options = this.options;
   debug('starting produce, opts=%j', options);
-  if (Array.isArray(options.location)) {
-    return options.location.forEach(function(location) {
-      this.get(options, location);
-    }, this);
-  }
-  this.get(options, options.location);
+  this.get(options);
 });
 module.exports = Producer;
 
-Producer.prototype.get = function(options, location) {
+Producer.prototype.get = function(options) {
+  debug('getting %j', options);
+  var location = options.location;
   var self = this;
   auth({
     clientId: options.clientId,
@@ -54,7 +51,7 @@ Producer.prototype.get = function(options, location) {
       return self.emit('error', err);
     }
     var until = new Date();
-    var from = new Date(seq.seq);
+    var from = new Date(self.seq.seq);
     debug('getting from=%j, to=%j', from, until);
     get({
       token: token,
@@ -115,7 +112,7 @@ Producer.prototype.get = function(options, location) {
         return;
       }
       debug('saving new until: %s - %s', ago(+until), until);
-      seq.save(until.valueOf());
+      self.seq.save(until.valueOf());
     });
   });
 };
