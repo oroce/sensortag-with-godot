@@ -40,10 +40,9 @@ function add(type, ctor) {
           type,
           uuid,
           config[type].ttl);
-        producers.push(ctor({
+        producers.push(ctor(extend({}, config[type], {
           uuid: uuid,
-          ttl: config[type].ttl
-        }));
+        })));
       });
     } else if (Array.isArray(config[type].location) && (config[type].location || []).length) {
       config[type].location.forEach(function(location, i) {
