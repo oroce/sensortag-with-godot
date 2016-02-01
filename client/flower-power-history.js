@@ -65,7 +65,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
   var currentSessionPeriod;
   var startIdx;
   this.device = flowerPower;
-  var uuid = peripheral.id || peripheral.uuid;
+  var uuid = flowerPower.id || flowerPower.uuid;
   debug('discovered device: %s', flowerPower.uuid);
   series([
     function(cb) {
