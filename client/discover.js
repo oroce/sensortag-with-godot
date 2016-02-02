@@ -7,6 +7,16 @@ module.exports = mixin;
 function discoverThis(callback) {
   var constructor = this;
   debug('discover this');
+  var evts = constructor.emitter._events;
+  var len = Object.keys(evts).length;
+  if (len === 0) {
+    debug('No events attached to noble');
+  }
+  Object.keys(evts).forEach(function(evt) {
+    var val = evts[evt];
+    var arr = Array.isArray(val) ? val : [val];
+    debug('\tevent: %s has %s listeners', evt, arr.length);
+  });
   constructor.emitter.addListener('discover', callback);
   if (constructor.emitter.listeners('discover').length === 1) {
     noble.on('discover', constructor.onDiscover);
@@ -38,4 +48,4 @@ mixin.discoverThis = function(ctor, cb) {
 };
 mixin.stopDiscoverThis = function(ctor, cb) {
   stopDiscoverThis.call(ctor, cb);
-}
+};
