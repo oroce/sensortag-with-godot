@@ -15,7 +15,11 @@ function discoverThis(callback) {
   Object.keys(evts).forEach(function(evt) {
     var val = evts[evt];
     var arr = Array.isArray(val) ? val : [val];
+
     debug('\tevent: %s has %s listeners', evt, arr.length);
+    arr.forEach(function(func) {
+      debug('\t\t%s eventlistener is %s (%s)', evt, func.name, func.toString());
+    });
   });
   constructor.emitter.addListener('discover', callback);
   if (constructor.emitter.listeners('discover').length === 1) {

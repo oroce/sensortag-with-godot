@@ -10,7 +10,7 @@ require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
-  this.filter = function(device) {
+  this.filter = function fpFilter(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
       this.onDiscover(device);

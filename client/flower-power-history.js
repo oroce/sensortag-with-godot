@@ -13,7 +13,7 @@ var Producer = producer(function ctor(options) {
   this.options = options;
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s (%j)', this.uuid || '<empty uuid>', options);
-  this.filter = function(device) {
+  this.filter = function fphFilter(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
       this.onDiscover(device);
@@ -43,7 +43,7 @@ var Producer = producer(function ctor(options) {
     debug('cancelling thunk');
     this.thunk.cancel();
   }
-  lock('flower-power', function(rls) {
+  lock('flower-power', function (rls) {
     debug('lock received');
     this.release = rls;
     this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
