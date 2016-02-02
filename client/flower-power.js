@@ -50,6 +50,7 @@ var Producer = producer(function ctor(options) {
       rls();
       this.thunk = null;
       this.release = null;
+      FlowerPower.stopDiscoverThis(this.filter);
     }.bind(this));
     FlowerPower.discoverThis(this.filter);
   }.bind(this));
