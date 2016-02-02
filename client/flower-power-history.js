@@ -10,21 +10,21 @@ var lock = require('./lock');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   options = (options || {});
+  var self = this;
   this.options = options;
   var uuid = this.uuid = options.uuid;
   debug('initialized flower power with %s (%j)', this.uuid || '<empty uuid>', options);
   this.filter = function fphFilter(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
-      this.onDiscover(device);
+      self.onDiscover(device);
       return;
     }
     debug('filtering device: "%s" <=> "%s"', device.uuid, uuid);
     if (device.uuid === uuid) {
-      this.onDiscover(device);
-      FlowerPower.stopDiscoverThis(this.filter);
+      self.onDiscover(device);
     }
-  }.bind(this);
+  };
   this.on('error', console.error.bind(console));
 }, function produce() {
   var hasDevice = this.device != null;
@@ -59,6 +59,7 @@ var Producer = producer(function ctor(options) {
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(flowerPower) {
+  FlowerPower.stopDiscoverThis(this.filter);
   var options = this.options;
   var self = this;
   var lastEntryIdx;

@@ -9,19 +9,19 @@ var lock = require('./lock');
 require('./discover')(FlowerPower);
 var Producer = producer(function ctor(options) {
   var uuid = this.uuid = options.uuid;
+  var self = this;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
   this.filter = function fpFilter(device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
-      this.onDiscover(device);
+      self.onDiscover(device);
       return;
     }
     debug('filtering device: "%s" <=> "%s"', device.uuid, uuid);
     if (device.uuid === uuid) {
-      this.onDiscover(device);
-      FlowerPower.stopDiscoverThis(this.filter);
+      self.onDiscover(device);
     }
-  }.bind(this);
+  };
   this.on('error', console.error.bind(console));
 }, function produce() {
   var hasDevice = this.device != null;
