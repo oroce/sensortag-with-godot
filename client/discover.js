@@ -18,7 +18,7 @@ function discoverThis(callback) {
 
     debug('\tevent: %s has %s listeners', evt, arr.length);
     arr.forEach(function(func) {
-      debug('\t\t%s eventlistener is %s (%s)', evt, func.name, func.toString());
+      debug('\t\t%s eventlistener is %s (%s)', evt, func.name || 'unnamed', func.toString());
     });
   });
   constructor.emitter.addListener('discover', callback);

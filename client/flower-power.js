@@ -19,6 +19,7 @@ var Producer = producer(function ctor(options) {
     debug('filtering device: "%s" <=> "%s"', device.uuid, uuid);
     if (device.uuid === uuid) {
       this.onDiscover(device);
+      FlowerPower.stopDiscoverThis(this.filter);
     }
   }.bind(this);
   this.on('error', console.error.bind(console));
