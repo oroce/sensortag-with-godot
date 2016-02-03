@@ -4,7 +4,7 @@ var noble = require('noble');
 var debug = require('debug')('swg:discover');
 module.exports = mixin;
 
-function logEvents(constructor) {
+function logEvents(constructor, expand) {
   var evts = constructor.emitter._events;
   var len = Object.keys(evts).length;
   if (len === 0) {
@@ -15,6 +15,9 @@ function logEvents(constructor) {
     var arr = Array.isArray(val) ? val : [val];
 
     debug('\tevent: %s has %s listeners', evt, arr.length);
+    if (expand === false) {
+      return;
+    }
     arr.forEach(function(func) {
       debug('\t\t%s eventlistener is %s (%s)', evt, func.name || 'unnamed', func.toString());
     });
@@ -38,9 +41,9 @@ function discoverThis(callback) {
 function stopDiscoverThis(discoverCallback) {
   var constructor = this;
   debug('stop discover this');
-  logEvents(constructor);
+  logEvents(constructor, false);
   constructor.emitter.removeListener('discover', discoverCallback);
-  logEvents(constructor);
+  logEvents(constructor, false);
   debug('stop discover this removed the event');
   if (constructor.emitter.listeners('discover').length === 0) {
     noble.removeListener('discover', constructor.onDiscover);

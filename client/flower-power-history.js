@@ -218,7 +218,7 @@ Producer.prototype.onDiscover = function onDiscover(flowerPower) {
         });
         return;
       }
-      console.log('result', result);
+
       self.emit('data', {
         service: 'flowerpower/history-uploaded',
         state: 'ok',
