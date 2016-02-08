@@ -42,9 +42,16 @@ function stopDiscoverThis(discoverCallback) {
   var constructor = this;
   debug('stop discover this');
   logEvents(constructor, false);
+  var oldCount = constructor.emitter.listeners('discover').length;
   constructor.emitter.removeListener('discover', discoverCallback);
-  logEvents(constructor, false);
-  debug('stop discover this removed the event');
+  var newCount = constructor.emitter.listeners('discover').length;
+  if (oldCount === newCount) {
+    debug('ACHTUNG!!! removeListener wasn\'t able to remove cb');
+    logEvents(constructor);
+  } else {
+    debug('Discover listeners count went from %s to %s', oldCount, newCount);
+    logEvents(constructor, false);
+  }
   if (constructor.emitter.listeners('discover').length === 0) {
     noble.removeListener('discover', constructor.onDiscover);
     noble.removeListener('stateChange', constructor.onStateChange);
