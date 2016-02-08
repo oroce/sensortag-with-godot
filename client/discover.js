@@ -47,6 +47,7 @@ function stopDiscoverThis(discoverCallback) {
   var newCount = constructor.emitter.listeners('discover').length;
   if (oldCount === newCount) {
     debug('ACHTUNG!!! removeListener wasn\'t able to remove cb');
+    debug('We tried to remove: %s: %s', discoverCallback.name, discoverCallback.toString());
     logEvents(constructor);
   } else {
     debug('Discover listeners count went from %s to %s', oldCount, newCount);
