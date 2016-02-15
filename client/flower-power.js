@@ -6,9 +6,17 @@ var deepextend = require('deep-extend');
 var debug = require('debug')('swg:device:flower-power');
 var first = require('ee-first');
 var lock = require('./lock');
-require('./discover')(FlowerPower);
-var Producer = producer(function ctor(options) {
+var discover = require('./discover');
+discover(FlowerPower);
+var stopDiscoverThis = function(that, cb) {
+  return discover.stopDiscoverThis(that, cb, debug);
+};
+var discoverThis = function(that, cb) {
+  return discover.discoverThis(that, cb, debug);
+};
+var Producer = producer(function FlowerPowerProducer(options) {
   var uuid = this.uuid = options.uuid;
+  this.options = options;
   var self = this;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
   this.filter = function fpFilter(device) {
@@ -26,23 +34,48 @@ var Producer = producer(function ctor(options) {
 }, function produce() {
   var hasDevice = this.device != null;
   var hasLock = this.release != null;
+  var options = this.options;
+  clearTimeout(this.timeout);
   debug('producing, stopping and restarting discovery (device=%s,lock=%s)', hasDevice, hasLock);
-  FlowerPower.stopDiscoverThis(this.filter);
+  debug('im %s but originally FlowerPower', this.ctorName);
+  stopDiscoverThis(FlowerPower, this.filter);
   if (this.device) {
     debug('disconnecting device');
     this.device.disconnect();
     this.device = null;
   }
-
+  if (this.cancelLock) {
+    debug('cancelling lock');
+    this.cancelLock();
+  }
   if (this.release) {
     debug('releasing lock');
     this.release();
+    this.release = null;
   }
   if (this.thunk) {
     debug('cancelling thunk');
     this.thunk.cancel();
+    this.thunk = null;
   }
-  lock('flower-power', function(rls) {
+  var closing = false;
+  var ttl = options.ttl - (options.ttl * .1);
+  debug('Waiting %sms till close', ttl);
+  this.timeout = setTimeout(function() {
+    debug('Producer is about to close');
+    closing = true;
+  }.bind(this), ttl);
+  this.cancelLock = lock('flower-power', function(er, rls) {
+    if (er) {
+      this.emit('error', er);
+      return;
+    }
+    if (closing) {
+      debug('producer is closing');
+      rls();
+      return;
+    }
+    clearTimeout(this.timeout);
     debug('lock received');
     this.release = rls;
     this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
@@ -50,16 +83,17 @@ var Producer = producer(function ctor(options) {
       rls();
       this.thunk = null;
       this.release = null;
-      FlowerPower.stopDiscoverThis(this.filter);
+      stopDiscoverThis(FlowerPower, this.filter);
     }.bind(this));
-    FlowerPower.discoverThis(this.filter);
+
+    discoverThis(FlowerPower, this.filter);
   }.bind(this));
 });
 
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(device) {
-  FlowerPower.stopDiscoverThis(this.filter);
+  stopDiscoverThis(FlowerPower, this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;

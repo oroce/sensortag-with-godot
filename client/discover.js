@@ -1,10 +1,11 @@
 'use strict';
 
 var noble = require('noble');
-var debug = require('debug')('swg:discover');
+var debugMe = require('debug')('swg:discover');
 module.exports = mixin;
 
-function logEvents(constructor, expand) {
+function logEvents(constructor, expand, dbg) {
+  var debug = dbg || debugMe;
   var evts = constructor.emitter._events;
   var len = Object.keys(evts).length;
   if (len === 0) {
@@ -23,10 +24,11 @@ function logEvents(constructor, expand) {
     });
   });
 }
-function discoverThis(callback) {
+function discoverThis(callback, dbg) {
   var constructor = this;
+  var debug = dbg || debugMe;
   debug('discover this');
-  logEvents(constructor);
+  logEvents(constructor, true, debug);
   constructor.emitter.addListener('discover', callback);
   if (constructor.emitter.listeners('discover').length === 1) {
     noble.on('discover', constructor.onDiscover);
@@ -38,20 +40,23 @@ function discoverThis(callback) {
   }
 }
 
-function stopDiscoverThis(discoverCallback) {
+function stopDiscoverThis(discoverCallback, dbg) {
   var constructor = this;
+  var debug = dbg || debugMe;
   debug('stop discover this');
-  logEvents(constructor, false);
+  logEvents(constructor, false, debug);
   var oldCount = constructor.emitter.listeners('discover').length;
   constructor.emitter.removeListener('discover', discoverCallback);
   var newCount = constructor.emitter.listeners('discover').length;
-  if (oldCount === newCount) {
+  if (oldCount === 0 && newCount === 0) {
+    debug('booting up, no events yet');
+  } else if (oldCount === newCount) {
     debug('ACHTUNG!!! removeListener wasn\'t able to remove cb');
-    debug('We tried to remove: %s: %s', discoverCallback.name, discoverCallback.toString());
-    logEvents(constructor);
+    debug('We tried to remove: %s of %s: %s', discoverCallback.name, constructor.name, discoverCallback.toString());
+    logEvents(constructor, true, debug);
   } else {
     debug('Discover listeners count went from %s to %s', oldCount, newCount);
-    logEvents(constructor, false);
+    logEvents(constructor, false, debug);
   }
   if (constructor.emitter.listeners('discover').length === 0) {
     noble.removeListener('discover', constructor.onDiscover);
@@ -64,9 +69,9 @@ function mixin(constructor) {
   constructor.stopDiscoverThis = constructor.stopDiscoverThis || stopDiscoverThis;
 }
 
-mixin.discoverThis = function(ctor, cb) {
-  discoverThis.call(ctor, cb);
+mixin.discoverThis = function(ctor, cb, dbg) {
+  discoverThis.call(ctor, cb, dbg);
 };
-mixin.stopDiscoverThis = function(ctor, cb) {
-  stopDiscoverThis.call(ctor, cb);
+mixin.stopDiscoverThis = function(ctor, cb, dbg) {
+  stopDiscoverThis.call(ctor, cb, dbg);
 };

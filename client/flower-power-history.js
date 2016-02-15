@@ -7,7 +7,14 @@ var debug = require('debug')('swg:device:flower-power-history');
 var cloud = require('./cloud');
 var first = require('ee-first');
 var lock = require('./lock');
-require('./discover')(FlowerPower);
+var discover = require('./discover');
+discover(FlowerPower);
+var stopDiscoverThis = function(that, cb) {
+  return discover.stopDiscoverThis(that, cb, debug);
+};
+var discoverThis = function(that, cb) {
+  return discover.discoverThis(that, cb, debug);
+};
 var Producer = producer(function ctor(options) {
   options = (options || {});
   var self = this;
@@ -29,12 +36,18 @@ var Producer = producer(function ctor(options) {
 }, function produce() {
   var hasDevice = this.device != null;
   var hasLock = this.release != null;
+  var options = this.options;
+  clearTimeout(this.timeout);
   debug('producing, stopping and restarting discovery (device=%s,lock=%s)', hasDevice, hasLock);
-  FlowerPower.stopDiscoverThis(this.filter);
+  stopDiscoverThis(FlowerPower, this.filter);
   if (this.device) {
     debug('disconnecting device');
     this.device.disconnect();
     this.device = null;
+  }
+  if (this.cancelLock) {
+    debug('cancelling lock');
+    this.cancelLock();
   }
   if (this.release) {
     debug('releasing lock');
@@ -44,7 +57,23 @@ var Producer = producer(function ctor(options) {
     debug('cancelling thunk');
     this.thunk.cancel();
   }
-  lock('flower-power', function (rls) {
+  var closing = false;
+  var ttl = options.ttl - (options.ttl * .1);
+  debug('Waiting %sms till close', ttl);
+  this.timeout = setTimeout(function() {
+    debug('Producer is about to close');
+    closing = true;
+  }.bind(this), ttl);
+  this.cancelLock = lock('flower-power', function (er, rls) {
+    if (er) {
+      return this.emit('error', er);
+    }
+    if (closing) {
+      debug('producer is closing');
+      rls();
+      return;
+    }
+    clearTimeout(this.timeout);
     debug('lock received');
     this.release = rls;
     this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
@@ -52,15 +81,15 @@ var Producer = producer(function ctor(options) {
       rls();
       this.thunk = null;
       this.release = null;
-      FlowerPower.stopDiscoverThis(this.filter);
+      stopDiscoverThis(FlowerPower, this.filter);
     }.bind(this));
-    FlowerPower.discoverThis(this.filter);
+    discoverThis(FlowerPower, this.filter);
   }.bind(this));
 });
 module.exports = Producer;
 
 Producer.prototype.onDiscover = function onDiscover(flowerPower) {
-  FlowerPower.stopDiscoverThis(this.filter);
+  stopDiscoverThis(FlowerPower, this.filter);
   var options = this.options;
   var self = this;
   var lastEntryIdx;
