@@ -149,3 +149,9 @@ if (config.lead) {
     producer.produce();
   });
 }
+
+process.on('uncaughtException', function(err) {
+  console.log('UNCAUGHT EXCEPTION: ' + err);
+  console.error(err);
+  process.exit(1);
+});
