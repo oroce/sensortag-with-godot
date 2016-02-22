@@ -59,7 +59,7 @@ var Producer = producer(function FlowerPowerProducer(options) {
     this.thunk = null;
   }
   var closing = false;
-  var ttl = options.ttl - (options.ttl * .1);
+  var ttl = options.ttl / 2;
   debug('Waiting %sms till close', ttl);
   this.timeout = setTimeout(function() {
     debug('Producer is about to close');
