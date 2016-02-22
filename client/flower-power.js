@@ -64,6 +64,7 @@ var Producer = producer(function FlowerPowerProducer(options) {
   this.timeout = setTimeout(function() {
     debug('Producer is about to close');
     closing = true;
+    this.cancelLock();
   }.bind(this), ttl);
   this.cancelLock = lock('flower-power', function(er, rls) {
     if (er) {
