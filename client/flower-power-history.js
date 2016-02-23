@@ -71,6 +71,10 @@ var Producer = producer(function ctor(options) {
   }.bind(this), ttl);
   this.cancelLock = lock('flower-power', function (er, rls) {
     if (er) {
+      if (this.thunk) {
+        this.thunk.cancel();
+      }
+      stopDiscoverThis(FlowerPower, this.filter);
       return this.emit('error', er);
     }
     if (closing) {
