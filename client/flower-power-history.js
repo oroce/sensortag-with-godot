@@ -52,10 +52,12 @@ var Producer = producer(function ctor(options) {
   if (this.release) {
     debug('releasing lock');
     this.release();
+    stopDiscoverThis(FlowerPower, this.filter);
   }
   if (this.thunk) {
     debug('cancelling thunk');
     this.thunk.cancel();
+    stopDiscoverThis(FlowerPower, this.filter);
   }
   var closing = false;
   var ttl = options.ttl / 2;

@@ -52,11 +52,13 @@ var Producer = producer(function FlowerPowerProducer(options) {
     debug('releasing lock');
     this.release();
     this.release = null;
+    stopDiscoverThis(FlowerPower, this.filter);
   }
   if (this.thunk) {
     debug('cancelling thunk');
     this.thunk.cancel();
     this.thunk = null;
+    stopDiscoverThis(FlowerPower, this.filter);
   }
   var closing = false;
   var ttl = options.ttl / 2;
