@@ -35,10 +35,12 @@ function discoverThis(callback, dbg) {
     noble.on('stateChange', constructor.onStateChange);
 
     if (noble.state === 'poweredOn') {
-      if (!noble.startedScanning) {
+      noble.stopScanning(function(err) {
+        if (err) {
+          console.error(err);
+        }
         noble.startScanning([], false);
-        noble.startedScanning = true;
-      }
+      });
     }
   }
 }
