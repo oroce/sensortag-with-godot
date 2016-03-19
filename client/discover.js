@@ -35,7 +35,10 @@ function discoverThis(callback, dbg) {
     noble.on('stateChange', constructor.onStateChange);
 
     if (noble.state === 'poweredOn') {
-      constructor.startScanning();
+      if (!noble.startedScanning) {
+        noble.startScanning([], false);
+        noble.startedScanning = true;
+      }
     }
   }
 }
