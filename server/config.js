@@ -30,5 +30,9 @@ module.exports = {
     user: process.env.INFLUXDB_USER || '',
     password: process.env.INFLUXDB_PASSWORD || '',
     database: process.env.INFLUXDB_DB || 'test'
+  },
+  downtime: {
+    enabled: process.env.DOWNTIME_REACTOR || env === 'production',
+    expire: process.env.DOWNTIME_TTL || 60 * 60 * 1000 /*1d*/
   }
 };
