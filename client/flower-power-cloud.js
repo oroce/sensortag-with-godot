@@ -3,27 +3,44 @@ var producer = require('godot-producer');
 var request = require('request');
 var Seq = require('seq-file');
 var path = require('path');
-var seq = new Seq(path.join(__dirname, 'sequence.seq'));
-var seqNum = seq.readSync();
 var debug = require('debug')('client:flower-power-cloud');
 var ago = require('time-ago')().ago;
-module.exports = producer(function ctor(options) {
+var cloud = require('./cloud');
+var get = cloud.get;
+var auth = cloud.auth;
+var garden = cloud.garden;
+var Producer = producer(function ctor(options) {
   //this.seqNum = options.segNum || seqNum;
   debug('New instance, opts=%j', options);
+  if (!options || !options.location) {
+    throw new Error('options.location is mandatory');
+  }
+
   this.options = options;
+
+  this.seq = new Seq(path.join(__dirname, 'sequence-' + options.location + '.seq'));
+  this.seqNum = this.seq.readSync();
+
   var tenDaysago = new Date();
   tenDaysago.setDate(tenDaysago.getDate() - 10);
   tenDaysago.setHours(tenDaysago.getHours() + 1);
-  if (seq.seq == null || seq.seq < +tenDaysago) {
-    debug('No sequence or old (%s - %s), saving %s - %s', ago(seq.seq || 0), seq.seq, ago(+tenDaysago), +tenDaysago);
-    seq.save(tenDaysago.valueOf());
+  if (this.seq.seq == null || this.seq.seq < +tenDaysago) {
+    debug('No sequence or old (%s - %s), saving %s - %s', ago(this.seq.seq || 0), this.seq.seq, ago(+tenDaysago), +tenDaysago);
+    this.seq.save(tenDaysago.valueOf());
   } else {
-    debug('applied seq is: %s - %s', ago(seq.seq), seq.seq);
+    debug('applied seq is: %s - %s', ago(this.seq.seq), this.seq.seq);
   }
 }, function produce() {
-  var self = this;
   var options = this.options;
   debug('starting produce, opts=%j', options);
+  this.get(options);
+});
+module.exports = Producer;
+
+Producer.prototype.get = function(options) {
+  debug('getting %j', options);
+  var location = options.location;
+  var self = this;
   auth({
     clientId: options.clientId,
     clientSecret: options.clientSecret,
@@ -34,43 +51,44 @@ module.exports = producer(function ctor(options) {
       return self.emit('error', err);
     }
     var until = new Date();
-    var from = new Date(seq.seq);
+    var from = new Date(self.seq.seq);
     debug('getting from=%j, to=%j', from, until);
     get({
       token: token,
       from: from.toJSON(),
       until: until.toJSON(),
-      location: options.location
+      location: location
     }, function(err, data) {
       if (err) {
         self.emit('error', err);
         return;
       }
 
-      data.samples.forEach(function(metric) {
+      until = data.samples.reduce(function(prev, metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
           service: 'light/percent',
           metric: metric.par_umole_m2s,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'temperature/air',
           metric: metric.air_temperature_celsius,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power-cloud'],
           time: +time
         });
         self.emit('data', {
           service: 'soil/moisture',
           metric: metric.vwc_percent,
-          host: 'api.flower-power-cloud.com',
+          host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power'],
           time: +time
         });
-      });
+        return time;
+      }, until);
       var fertilizers = data.fertilizer
         .filter(function(fertilizer) {
           var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
@@ -86,7 +104,7 @@ module.exports = producer(function ctor(options) {
             meta: fertilizer,
             time: +(new Date(fertilizer.watering_cycle_end_date_time_utc)),
             tags: ['flower-power-cloud'],
-            host: 'api.flower-power-cloud.com'
+            host: 'api.' + location + '.flower-power-cloud.com',
           });
         });
       if (fertilizers.length === 0 && data.samples.length === 0) {
@@ -94,51 +112,7 @@ module.exports = producer(function ctor(options) {
         return;
       }
       debug('saving new until: %s - %s', ago(+until), until);
-      seq.save(until.valueOf());
+      self.seq.save(until.valueOf());
     });
   });
-});
-
-
-function auth(options, cb) {
-  request({
-    url: 'https://apiflowerpower.parrot.com/user/v1/authenticate',
-    qs: {
-      grant_type: 'password',
-      client_id: options.clientId,
-      client_secret: options.clientSecret,
-      username: options.username,
-      password: options.password
-    },
-    json: true
-  }, function(err, response, json) {
-    console.log('auth resp', json, err)
-    if (err) {
-      return cb(err);
-    }
-    cb(null, json.access_token);
-  });
-}
-
-module.exports.auth = auth;
-
-function get(options, cb) {
-  request({
-    url: 'https://apiflowerpower.parrot.com/sensor_data/v2/sample/location/' + options.location,
-    headers: {
-      'Authorization': 'Bearer ' + options.token
-    },
-    qs: {
-      from_datetime_utc: options.from,
-      to_datetime_utc: options.to,
-    },
-    json: true
-  }, function(err, resp, json) {
-    if (err) {
-      return cb(err);
-    }
-
-    cb(null, json);
-  });
-}
-module.exports.get = get;
+};

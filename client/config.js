@@ -1,17 +1,20 @@
 'use strict';
 var boolean = require('boolean');
-require('dotenv').load({path: __dirname + '/.env'});
+var path = require('path');
+require('dotenv').load({path: path.join(__dirname, '.env')});
 var ttl = +process.env.TTL || 1000 * 15;
 var uuids = {
   sensortag: deviceUuids('sensortag'),
   minew: deviceUuids('minew'),
-  flowerPower: deviceUuids('flower_power')
+  flowerPower: deviceUuids('flower_power'),
+  flowerPowerHistory: deviceUuids('flower_power_history')
 };
 var enabled = {
   sensortag: deviceEnabled('sensortag'),
   minew: deviceEnabled('minew'),
   flowerPower: deviceEnabled('flower_power'),
   flowerPowerCloud: deviceEnabled('flower_power_cloud'),
+  flowerPowerHistory: deviceEnabled('flower_power_history'),
   uptime: deviceEnabled('uptime')
 };
 
@@ -35,13 +38,23 @@ module.exports = {
     clientSecret: process.env.FLOWER_POWER_CLOUD_CLIENT_SECRET,
     username: process.env.FLOWER_POWER_CLOUD_USERNAME,
     password: process.env.FLOWER_POWER_CLOUD_PASSWORD,
-    location: process.env.FLOWER_POWER_CLOUD_LOCATION,
+    location: split(process.env.FLOWER_POWER_CLOUD_LOCATION),
     enabled: enabled.flowerPowerCloud
   },
   flowerPower: {
     ttl: +process.env.FLOWER_POWER_TTL || ttl,
     enabled: uuids.flowerPower.length || enabled.flowerPower,
     uuids: uuids.flowerPower
+  },
+  flowerPowerHistory: {
+    ttl: +process.env.FLOWER_POWER_HISTORY_TTL || ttl,
+    enabled: uuids.flowerPowerHistory.length || enabled.flowerPowerHistory,
+    uuids: uuids.flowerPowerHistory,
+    clientId: process.env.FLOWER_POWER_CLOUD_CLIENT_ID,
+    clientSecret: process.env.FLOWER_POWER_CLOUD_CLIENT_SECRET,
+    username: process.env.FLOWER_POWER_CLOUD_USERNAME,
+    password: process.env.FLOWER_POWER_CLOUD_PASSWORD,
+    location: process.env.FLOWER_POWER_CLOUD_LOCATION
   },
   weather: {
     key: process.env.WEATHER_KEY,
@@ -55,6 +68,7 @@ module.exports = {
     ttl: +process.env.UPTIME_TTL || ttl
   }
 };
+
 function deviceEnabled(name) {
   return boolean(process.env[name.toUpperCase() + '_ENABLED']);
 }
@@ -62,6 +76,7 @@ function deviceEnabled(name) {
 function deviceUuids(name) {
   return split(process.env[name.toUpperCase() + '_UUIDS']);
 }
+
 function split(value) {
   if (value == null) {
     return [];
