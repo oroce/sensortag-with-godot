@@ -8,7 +8,7 @@ module.exports = function(key, cb) {
     locks[key] = mutexify();
   }
   var lock = setup(cb);
-  debug('before acquire, the queue is at: %s', locks[key].queue.length);
+  debug('before acquire, the queue is at: %s', locks[key].queue && locks[key].queue.length);
   locks[key](lock.cb);
   return lock.cancel;
 };
