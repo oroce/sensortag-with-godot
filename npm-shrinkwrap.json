@@ -7,6 +7,11 @@
       "from": "async@>=1.4.2 <2.0.0",
       "resolved": "https://registry.npmjs.org/async/-/async-1.5.2.tgz"
     },
+    "bluetooth-hci-socket": {
+      "version": "0.4.2",
+      "from": "bluetooth-hci-socket@>=0.4.2 <0.5.0",
+      "resolved": "https://registry.npmjs.org/bluetooth-hci-socket/-/bluetooth-hci-socket-0.4.2.tgz"
+    },
     "debug": {
       "version": "0.8.1",
       "from": "debug@>=0.8.1 <0.9.0",
