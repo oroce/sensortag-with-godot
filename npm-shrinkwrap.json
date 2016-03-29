@@ -19,8 +19,13 @@
     },
     "boolean": {
       "version": "0.1.0",
-      "from": "boolean@>0.1.0 <0.2.0",
+      "from": "boolean@>=0.1.0 <0.2.0",
       "resolved": "https://registry.npmjs.org/boolean/-/boolean-0.1.0.tgz"
+    },
+    "function-name": {
+      "version": "1.0.0",
+      "from": "function-name@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/function-name/-/function-name-1.0.0.tgz"
     },
     "debug": {
       "version": "0.8.1",

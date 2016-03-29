@@ -8,6 +8,7 @@ var cloud = require('./cloud');
 var first = require('ee-first');
 var lock = require('./lock');
 var discover = require('./discover');
+var rename = require('function-name');
 discover(FlowerPower);
 var stopDiscoverThis = function(that, cb) {
   return discover.stopDiscoverThis(that, cb, debug);
@@ -32,6 +33,7 @@ var Producer = producer(function ctor(options) {
       self.onDiscover(device);
     }
   };
+  rename(this.filter, 'fphFilter-' + (this.uuid || 'uuid-less'));
   this.on('error', console.error.bind(console));
 }, function produce() {
   var hasDevice = this.device != null;
