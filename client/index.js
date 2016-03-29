@@ -170,7 +170,7 @@ server.on('error', (err) => {
 
 server.on('message', (msg, rinfo) => {
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-  switch ('' + msg) {
+  switch (('' + msg).trim()) {
     case 'dump':
       console.log(stringify(noble, null, 2));
       break;
@@ -178,7 +178,7 @@ server.on('message', (msg, rinfo) => {
       produce();
       break;
     default:
-      console.log(`Cannot handle ${msg}`);
+      console.log(`Cannot handle "${msg}"`);
       break;
   }
 });
