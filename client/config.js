@@ -3,6 +3,7 @@
 var path = require('path');
 require('dotenv').load({path: path.join(__dirname, '.env')});
 var ttl = +process.env.TTL || 1000 * 15;
+var boolean = require('boolean');
 var uuids = {
   sensortag: deviceUuids('sensortag'),
   minew: deviceUuids('minew'),
@@ -19,9 +20,9 @@ var enabled = {
 };
 
 module.exports = {
-  lead: process.env.LEAD,
-  rpi: process.env.RPI,
-  dummy: process.env.DUMMY,
+  lead: boolean(process.env.LEAD),
+  rpi: boolean(process.env.RPI),
+  dummy: boolean(process.env.DUMMY),
   sensortag: {
     ttl: +process.env.SENSORTAG_TTL || ttl,
     enabled: uuids.sensortag.length || enabled.sensortag,
@@ -70,7 +71,7 @@ module.exports = {
 };
 
 function deviceEnabled(name) {
-  return process.env[name.toUpperCase() + '_ENABLED'] != null;
+  return boolean(process.env[name.toUpperCase() + '_ENABLED']);
 }
 
 function deviceUuids(name) {
