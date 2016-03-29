@@ -17,6 +17,7 @@ var flowerPowerHistoryProducer = require('./flower-power-history');
 var weatherProducer = require('./weather');
 var uptimeProducer = require('./uptime');
 var extend = require('deep-extend');
+var noble = require('noble');
 var Dummy = producer(function() {
   this.ndx = 0;
 }, function() {
@@ -144,10 +145,13 @@ client.connect(port, host, function(err) {
   console.log('Connected to %s:%s', host, port);
 });
 
-if (config.lead) {
+function produce() {
   producers.forEach(function(producer) {
     producer.produce();
   });
+}
+if (config.lead) {
+  produce();
 }
 
 process.on('uncaughtException', function(err) {
@@ -155,3 +159,33 @@ process.on('uncaughtException', function(err) {
   console.error(err);
   process.exit(1);
 });
+
+const dgram = require('dgram');
+const server = dgram.createSocket('udp4');
+const stringify = require('json-stringify-safe');
+server.on('error', (err) => {
+  console.log(`server error:\n${err.stack}`);
+  server.close();
+});
+
+server.on('message', (msg, rinfo) => {
+  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+  switch ('' + msg) {
+    case 'dump':
+      console.log(stringify(noble, null, 2));
+      break;
+    case 'produce':
+      produce();
+      break;
+    default:
+      console.log(`Cannot handle ${msg}`);
+      break;
+  }
+});
+
+server.on('listening', () => {
+  var address = server.address();
+  console.log(`server listening ${address.address}:${address.port}`);
+});
+
+server.bind();
