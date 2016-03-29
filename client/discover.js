@@ -39,7 +39,7 @@ function discoverThis(callback, dbg) {
         if (err) {
           console.error(err);
         }
-        noble.startScanning([], false);
+        noble.startScanning([], true);
       });
     }
   }
