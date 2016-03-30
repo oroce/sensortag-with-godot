@@ -170,12 +170,15 @@ server.on('error', (err) => {
 
 server.on('message', (msg, rinfo) => {
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-  switch (('' + msg).trim()) {
+  switch (('' + msg).trim().toLowerCase()) {
     case 'dump':
       console.log(stringify(noble, null, 2));
       break;
     case 'produce':
       produce();
+      break;
+    case 'startscanning':
+      noble.startScanning([], true);
       break;
     default:
       console.log(`Cannot handle "${msg}"`);
