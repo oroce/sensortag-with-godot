@@ -30,7 +30,6 @@ function discoverThis(callback, dbg) {
   debug('discover this');
   logEvents(constructor, true, debug);
   constructor.emitter.addListener('discover', callback);
-  if (constructor.emitter.listeners('discover').length === 1) {
   var discoverListeners = noble.listeners('discover');
   var stateListeners = noble.listeners('stateChange');
   if (!~discoverListeners.indexOf(constructor.onDiscover)) {
