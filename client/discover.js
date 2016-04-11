@@ -31,17 +31,16 @@ function discoverThis(callback, dbg) {
   logEvents(constructor, true, debug);
   constructor.emitter.addListener('discover', callback);
   if (constructor.emitter.listeners('discover').length === 1) {
+  var discoverListeners = noble.listeners('discover');
+  var stateListeners = noble.listeners('stateChange');
+  if (!~discoverListeners.indexOf(constructor.onDiscover)) {
     noble.on('discover', constructor.onDiscover);
+  }
+  if (!~stateListeners.indexOf(constructor.onStateChange)) {
     noble.on('stateChange', constructor.onStateChange);
-
-    if (noble.state === 'poweredOn') {
-      noble.stopScanning(function(err) {
-        if (err) {
-          console.error(err);
-        }
-        noble.startScanning([], true);
-      });
-    }
+  }
+  if (noble.state === 'poweredOn') {
+    noble.startScanning([], false);
   }
 }
 
