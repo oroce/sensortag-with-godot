@@ -12,10 +12,10 @@ module.exports = producer(
     debug('Uptime ctor: %j', options);
     this.options = options;
   },
-  function produce() {
+  function produce(data) {
     var servicePrefix = this.options.service;
     var service = (servicePrefix ? servicePrefix + '/' : '') + 'uptime';
-    debug('New uptime event for %s is %s', service, data);
+    debug('New uptime event for %s is %s', service, uptime);
     this.emit('data', {
       service: service,
       metric: uptime,
