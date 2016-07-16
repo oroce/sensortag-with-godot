@@ -4,12 +4,7 @@ var hostname = os.hostname();
 var ago = require('time-ago')().ago;
 var producer = require('godot-producer');
 var debug = require('debug')('swg:service:uptime');
-var uptime;
-try {
-  uptime = require('./uptime/linux');
-} catch (x) {
-  uptime = require('./uptime/node');
-}
+var uptime = require('os-uptime')();
 
 module.exports = producer(
   function ctor(options) {
@@ -20,7 +15,7 @@ module.exports = producer(
   function produce() {
     var servicePrefix = this.options.service;
     var service = (servicePrefix ? servicePrefix + '/' : '') + 'uptime';
-    debug('New uptime event for %s is %s', service, new Date(uptime));
+    debug('New uptime event for %s is %s', service, data);
     this.emit('data', {
       service: service,
       metric: uptime,
