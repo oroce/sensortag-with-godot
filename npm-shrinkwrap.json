@@ -1726,6 +1726,11 @@
       "from": "time-ago@>=0.1.0 <0.2.0",
       "resolved": "https://registry.npmjs.org/time-ago/-/time-ago-0.1.0.tgz"
     },
+    "os-uptime": {
+      "version": "1.0.0",
+      "from": "os-uptime@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/os-uptime/-/os-uptime-1.0.0.tgz"
+    },
     "parse-duration": {
       "version": "0.1.1",
       "from": "parse-duration@>=0.1.0 <0.2.0",

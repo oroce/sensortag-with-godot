@@ -37,6 +37,7 @@
     "noble-device": "^1.2.0",
     "nodemailer": "^1.5.0",
     "nodemailer-smtp-transport": "^1.0.3",
+    "os-uptime": "^1.0.0",
     "parse-duration": "^0.1.1",
     "proxyquire": "^1.6.0",
     "request": "^2.54.0",
