@@ -6,10 +6,10 @@ module.exports = {
   email: {
     enabled: process.env.EMAIL_ENABLED || env === 'production',
     auth: {
-      user: process.env.MANDRILL_USER,
-      pass: process.env.MANDRILL_KEY
+      user: process.env.MANDRILL_USER || process.env.EMAIL_USER,
+      pass: process.env.MANDRILL_KEY || process.env.EMAIL_PASSWORD
     },
-    host: 'smtp.mandrillapp.com',
+    host: process.env.EMAIL_HOST,
     port: 587,
     to: process.env.EMAIL_TO,
     from: process.env.EMAIL_FROM,
