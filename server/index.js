@@ -50,7 +50,7 @@ if (config.uptime.enabled) {
         var duration = data.metric - prevMetric;
         var text = [
           'Rebooted at: ' + new Date(data.metric) + '(' + data.metric + ')',
-          'Last metric: ' + new Date(prevMetric) + '(' + prevMetric + ')'
+          'Last metric: ' + new Date(prevMetric) + '(' + prevMetric + ')',
           'Duration: ' + humanizeDuration(duration) + '(' + duration + ')'
         ];
         return [
