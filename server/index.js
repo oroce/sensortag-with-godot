@@ -34,31 +34,40 @@ influxReactor.write = function write(data) {
 };
 var reactors = [];
 if (config.uptime.enabled) {
+  var reboot;
+  if (config.email.enabled) {
+    reboot = email({
+      auth: config.email.auth,
+      from: config.email.from,
+      to: config.email.to,
+      interval: 1,
+      host: config.email.host,
+      port: config.email.port,
+      subject: function(data) {
+        return data.hostname + ' rebooted at ' + new Date(metric);
+      },
+      body: function(data, prevMetric) {
+        var duration = data.metric - prevMetric;
+        var text = [
+          'Rebooted at: ' + new Date(data.metric) + '(' + data.metric + ')',
+          'Last metric: ' + new Date(prevMetric) + '(' + prevMetric + ')'
+          'Duration: ' + humanizeDuration(duration) + '(' + duration + ')'
+        ];
+        return [
+          text.join('\n'),
+          data.description,
+          JSON.stringify(data, null, 2)
+        ].join('\n\n');
+      }
+    });
+  } else {
+    reboot = godot.console(function(data) {
+      debug(data.description);
+    });
+  }
   reactors.push(function (socket) {
     var change = godot.change('metric');
-    change.last = 0;
-    var reboot;
-    if (config.email.enabled) {
-      reboot = email({
-        auth: config.email.auth,
-        from: config.email.from,
-        to: config.email.to,
-        interval: 1,
-        host: config.email.host,
-        port: config.email.port,
-        subject: function(data) {
-          return data.description;
-        },
-        body: function(data) {
-          return data.description + '\n\n' +
-          JSON.stringify(data, null, 2);
-        }
-      });
-    } else {
-      reboot = godot.console(function(data) {
-        debug(data.description);
-      });
-    }
+    reboot.lastMetric = change.last = 0;
 
     return socket
       .pipe(godot.where('service', '*/uptime'))

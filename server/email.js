@@ -28,14 +28,15 @@ module.exports = Email;
 
 Email.prototype.write = function write(data) {
   var self = this;
-  var subj = this.subject(data);
-  var text = this.body(data);
+  var subj = this.subject(data, this.lastMetric);
+  var text = this.body(data, lastMetric);
   var opts = {
     to: this.to,
     from: this.from,
     subject: subj,
     text: text
   };
+  this.lastMetric = data.metric;
   debug('sending email with opts: %j', opts);
   this.transporter.sendMail(opts, function(err, result) {
     if (err) {
