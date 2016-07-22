@@ -29,7 +29,7 @@ module.exports = Email;
 Email.prototype.write = function write(data) {
   var self = this;
   var subj = this.subject(data, this.lastMetric);
-  var text = this.body(data, lastMetric);
+  var text = this.body(data, this.lastMetric);
   var opts = {
     to: this.to,
     from: this.from,
