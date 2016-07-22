@@ -11,6 +11,7 @@ var expiry = +process.env.EXPIRY || 1000 * 10;
 var throttle = +process.env.THROTTLE || 1000 * 60;
 var email = require('./email');
 var config = require('./config');
+var humanizeDuration = require('humanize-duration');
 debug('expiry=%s, throttle=%s', expiry, throttle);
 var influxReactor = influx({
   host: config.influxdb.host,
