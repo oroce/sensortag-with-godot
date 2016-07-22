@@ -44,7 +44,7 @@ if (config.uptime.enabled) {
       host: config.email.host,
       port: config.email.port,
       subject: function(data) {
-        return data.hostname + ' rebooted at ' + new Date(metric);
+        return data.hostname + ' rebooted at ' + new Date(data.metric);
       },
       body: function(data, prevMetric) {
         var duration = data.metric - prevMetric;
