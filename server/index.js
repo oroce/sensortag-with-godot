@@ -48,7 +48,7 @@ if (config.uptime.enabled) {
         return data.hostname + ' rebooted at ' + new Date(data.metric);
       },
       body: function(data, prevMetric) {
-        var duration = data.metric - prevMetric;
+        var duration = new Date(data.metric) - prevMetric;
         var text = [
           'Rebooted at: ' + new Date(data.metric) + '(' + data.metric + ')',
           'Last metric: ' + new Date(prevMetric) + '(' + prevMetric + ')',
