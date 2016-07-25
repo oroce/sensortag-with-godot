@@ -66,10 +66,10 @@ if (config.uptime.enabled) {
       debug(data.description);
     });
   }
-  reactors.push(function (socket) {
-    var change = godot.change('metric');
-    reboot.lastMetric = change.last = 0;
+  var change = godot.change('metric');
+  reboot.lastMetric = change.last = 0;
 
+  reactors.push(function (socket) {
     return socket
       .pipe(godot.where('service', '*/uptime'))
       .pipe(change)
