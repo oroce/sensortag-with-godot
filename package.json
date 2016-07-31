@@ -13,15 +13,15 @@
   "author": "",
   "license": "ISC",
   "optionalDependencies": {
-    "vcgencmd": "^0.2.5",
-    "bluetooth-hci-socket": "^0.4.2"
+    "vcgencmd": "^0.3.0",
+    "bluetooth-hci-socket": "^0.5.0"
   },
   "dependencies": {
-    "async": "^1.4.2",
+    "async": "^2.0.1",
     "boolean": "^0.1.0",
-    "debug": "^0.8.1",
+    "debug": "^2.2.0",
     "deep-extend": "^0.4.0",
-    "dotenv": "^1.2.0",
+    "dotenv": "^2.0.0",
     "ee-first": "^1.1.1",
     "flower-power": "git://github.com/oroce/node-flower-power#history-without-noble",
     "function-name": "https://registry.npmjs.org/function-name/-/function-name-1.0.0.tgz",
@@ -36,8 +36,8 @@
     "mutexify": "^1.1.0",
     "noble": "^1.3.0",
     "noble-device": "^1.2.0",
-    "nodemailer": "^1.5.0",
-    "nodemailer-smtp-transport": "^1.0.3",
+    "nodemailer": "^2.5.0",
+    "nodemailer-smtp-transport": "^2.6.0",
     "os-uptime": "^1.0.0",
     "parse-duration": "^0.1.1",
     "proxyquire": "^1.6.0",
@@ -46,7 +46,7 @@
     "run-waterfall": "^1.1.3",
     "sensortag": "^1.2.2",
     "seq-file": "^1.2.1",
-    "should": "^7.0.2",
+    "should": "^10.0.0",
     "time-ago": "^0.1.0",
     "wundergroundnode": "^0.9.0"
   }
