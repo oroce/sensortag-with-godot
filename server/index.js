@@ -116,7 +116,7 @@ if (config.throttle.enabled) {
   });
 }
 if (config.forward.enabled) {
-  reactors.push(function forward() {
+  reactors.push(function forward(socket) {
     return socket
       .pipe(godot.forward({
         type: config.forward.type,
