@@ -30,5 +30,11 @@ module.exports = {
     user: process.env.INFLUXDB_USER || '',
     password: process.env.INFLUXDB_PASSWORD || '',
     database: process.env.INFLUXDB_DB || 'test'
+  },
+  forward: {
+    enabled: process.env.FORWARD_ENABLED,
+    host: process.env.FORWARD_HOST,
+    port: +process.env.FORWARD_PORT,
+    type: process.env.FORWARD_TYPE
   }
 };

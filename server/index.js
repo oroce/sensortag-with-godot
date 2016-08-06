@@ -115,6 +115,16 @@ if (config.throttle.enabled) {
       );
   });
 }
+if (config.forward.enabled) {
+  reactors.push(function forward() {
+    return socket
+      .pipe(godot.forward({
+        type: config.forward.type,
+        host: config.forward.host,
+        port: config.forward.port
+      }));
+  });
+}
 var server = godot.createServer({
   type: 'tcp',
   reactors: reactors
