@@ -33,6 +33,7 @@ influxReactor.write = function write(data) {
   writeQueue.push(data);
   this.emit('data', data);
 };
+var forward = require('./forward');
 var reactors = [];
 if (config.uptime.enabled) {
   var reboot;
@@ -116,13 +117,14 @@ if (config.throttle.enabled) {
   });
 }
 if (config.forward.enabled) {
-  reactors.push(function forward(socket) {
+  var forwardReactor = forward({
+    type: config.forward.type,
+    host: config.forward.host,
+    port: config.forward.port
+  });
+  reactors.push(function forwarder(socket) {
     return socket
-      .pipe(godot.forward({
-        type: config.forward.type,
-        host: config.forward.host,
-        port: config.forward.port
-      }));
+      .pipe(forwardReactor);
   });
 }
 var server = godot.createServer({

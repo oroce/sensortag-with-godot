@@ -41,6 +41,7 @@
     "os-uptime": "^1.0.0",
     "parse-duration": "^0.1.1",
     "proxyquire": "^1.6.0",
+    "reconnect-net": "^1.1.0",
     "request": "^2.54.0",
     "run-series": "^1.1.1",
     "run-waterfall": "^1.1.3",
