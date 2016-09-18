@@ -35,7 +35,7 @@
     "mocha": "^3.0.2",
     "mutexify": "^1.1.0",
     "noble": "^1.7.0",
-    "noble-device": "^1.2.0",
+    "noble-device": "^1.4.1",
     "nodemailer": "^1.5.0",
     "nodemailer-smtp-transport": "^2.7.2",
     "os-uptime": "^1.0.0",
