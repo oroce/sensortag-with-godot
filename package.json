@@ -32,7 +32,7 @@
     "json-stringify-safe": "^5.0.1",
     "memory-producer": "^0.1.1",
     "minew-minibeacon": "^1.0.0",
-    "mocha": "^3.0.2",
+    "mocha": "^3.1.0",
     "mutexify": "^1.1.0",
     "noble": "^1.7.0",
     "noble-device": "^1.4.1",
