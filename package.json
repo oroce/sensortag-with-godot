@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "optionalDependencies": {
-    "vcgencmd": "^0.2.5",
+    "vcgencmd": "^0.3.0",
     "bluetooth-hci-socket": "^0.5.1"
   },
   "dependencies": {
