@@ -19,7 +19,7 @@
   "dependencies": {
     "async": "^1.4.2",
     "boolean": "^0.1.0",
-    "debug": "^0.8.1",
+    "debug": "^2.3.1",
     "deep-extend": "^0.4.0",
     "dotenv": "^1.2.0",
     "ee-first": "^1.1.1",
