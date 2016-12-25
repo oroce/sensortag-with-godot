@@ -35,47 +35,10 @@ influxReactor.write = function write(data) {
 };
 var forward = require('./forward');
 var reactors = [];
-if (config.uptime.enabled) {
-  var reboot;
-  if (config.email.enabled) {
-    reboot = email({
-      auth: config.email.auth,
-      from: config.email.from,
-      to: config.email.to,
-      interval: 1,
-      host: config.email.host,
-      port: config.email.port,
-      subject: function(data) {
-        return data.hostname + ' rebooted at ' + new Date(data.metric);
-      },
-      body: function(data, prevMetric) {
-        var duration = new Date(data.metric) - prevMetric;
-        var text = [
-          'Rebooted at: ' + new Date(data.metric) + '(' + data.metric + ')',
-          'Last metric: ' + new Date(prevMetric) + '(' + prevMetric + ')',
-          'Duration: ' + humanizeDuration(duration) + '(' + duration + ')'
-        ];
-        return [
-          text.join('\n'),
-          data.description,
-          JSON.stringify(data, null, 2)
-        ].join('\n\n');
-      }
-    });
-  } else {
-    reboot = godot.console(function(data) {
-      debug(data.description);
-    });
-  }
-  var change = godot.change('metric');
-  reboot.lastMetric = change.last = 0;
 
-  reactors.push(function (socket) {
-    return socket
-      .pipe(godot.where('service', '*/uptime'))
-      .pipe(change)
-      .pipe(reboot);
-  });
+var uptimeReactor = require('./reactors/uptime');
+if (config.uptime.enabled) {
+  reactors.push(uptimeReactor(config));
 }
 if (config.influxdb.enabled) {
   reactors.push(function (socket) {
@@ -125,6 +88,21 @@ if (config.forward.enabled) {
   reactors.push(function forwarder(socket) {
     return socket
       .pipe(forwardReactor);
+  });
+}
+
+if (config.noUptime.enabled) {
+  var noUptimeReactor = godot.timeWindow();
+  var noUptimeEmail = emailFactory(function() {
+    return 'no uptime';
+  }, function() {
+    return 'no uptime body';
+  });
+  reactors.push(function noUptime(socket) {
+    return socket
+      .pipe(godot.where('service', '*/uptime'))
+      .pipe(noUptimeReactor)
+      .pipe(noUptimeEmail);
   });
 }
 var server = godot.createServer({
