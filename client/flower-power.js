@@ -8,18 +8,18 @@ var first = require('ee-first');
 var lock = require('./lock');
 var discover = require('./discover');
 discover(FlowerPower);
-var stopDiscoverThis = function(that, cb) {
+var stopDiscoverThis = function (that, cb) {
   return discover.stopDiscoverThis(that, cb, debug);
 };
-var discoverThis = function(that, cb) {
+var discoverThis = function (that, cb) {
   return discover.discoverThis(that, cb, debug);
 };
-var Producer = producer(function FlowerPowerProducer(options) {
+var Producer = producer(function FlowerPowerProducer (options) {
   var uuid = this.uuid = options.uuid;
   this.options = options;
   var self = this;
   debug('initialized flower power with %s', this.uuid || '<empty uuid>');
-  this.filter = function fpFilter(device) {
+  this.filter = function fpFilter (device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
       self.onDiscover(device);
@@ -31,7 +31,7 @@ var Producer = producer(function FlowerPowerProducer(options) {
     }
   };
   this.on('error', console.error.bind(console));
-}, function produce() {
+}, function produce () {
   var hasDevice = this.device != null;
   var hasLock = this.release != null;
   var options = this.options;
@@ -63,7 +63,7 @@ var Producer = producer(function FlowerPowerProducer(options) {
   var closing = false;
   var ttl = options.ttl / 2;
   debug('Waiting %sms till close', ttl);
-  this.timeout = setTimeout(function() {
+  this.timeout = setTimeout(function () {
     debug('Producer is about to close');
     closing = true;
     if (this.cancelLock) {
@@ -72,7 +72,7 @@ var Producer = producer(function FlowerPowerProducer(options) {
       debug('already canceled/ended');
     }
   }.bind(this), ttl);
-  this.cancelLock = lock('flower-power', function(er, rls) {
+  this.cancelLock = lock('flower-power', function (er, rls) {
     if (er) {
       if (this.thunk) {
         this.thunk.cancel();
@@ -89,7 +89,10 @@ var Producer = producer(function FlowerPowerProducer(options) {
     clearTimeout(this.timeout);
     debug('lock received');
     this.release = rls;
-    this.thunk = first([[this, 'data', 'error']], function(err, ee, evt) {
+    this.thunk = first([[this, 'data', 'error']], function (err, ee, evt) {
+      if (err) {
+        this.emit('error', err);
+      }
       debug('received %s, remove think, release', evt);
       rls();
       this.thunk = null;
@@ -103,62 +106,58 @@ var Producer = producer(function FlowerPowerProducer(options) {
 
 module.exports = Producer;
 
-Producer.prototype.onDiscover = function onDiscover(device) {
+Producer.prototype.onDiscover = function onDiscover (device) {
   stopDiscoverThis(FlowerPower, this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;
-  var peripheral = device._peripheral;
-  var advertisement = peripheral.advertisement;
-  var localName = advertisement.localName;
-  var txPowerLevel = advertisement.txPowerLevel;
   var flowerPower = device;
   series([
-    function(cb) {
+    function (cb) {
       debug('connect and setup');
       flowerPower.connectAndSetup(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read soil temp');
       flowerPower.readSoilTemperature(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read calibrated soil');
       flowerPower.readCalibratedSoilMoisture(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read calibrated air temp');
       flowerPower.readCalibratedAirTemperature(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read sunlight');
       flowerPower.readCalibratedSunlight(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read ea');
       flowerPower.readCalibratedEa(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read ecb');
       flowerPower.readCalibratedEcb(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read ec porous');
       flowerPower.readCalibratedEcPorous(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read battery level');
       flowerPower.readBatteryLevel(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('update rssi');
       flowerPower._peripheral.updateRssi(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('disconnect');
       flowerPower.disconnect(cb);
     }
-  ], function(err, data) {
+  ], function (err, data) {
     if (err) {
       self.emit('error', err);
       // do not return, maybe we have some data
@@ -185,7 +184,7 @@ Producer.prototype.onDiscover = function onDiscover(device) {
     emit('battery/level', battery);
     emit('rssi/level', rssi);
     self.device = null;
-    function emit(service, metric, obj) {
+    function emit (service, metric, obj) {
       service = 'flowerpower/' + service;
       self.emit('data', deepextend({
         service: service,

@@ -1,26 +1,26 @@
 var producer = require('godot-producer');
 var vcgencmd;
-try{
+try {
   vcgencmd = require('vcgencmd');
-} catch(x){
+} catch (x) {
   // probably process.arch !== 'arch'
 }
 
 module.exports = producer(
-  function ctor() {
+  function ctor () {
 
   },
-  function write() {
+  function write () {
     var temp;
     if (!vcgencmd) {
       return;
     }
-    try{
+    try {
       temp = vcgencmd.measureTemp();
       this.emit('data', {
         metric: temp
       });
-    } catch(x){
+    } catch (x) {
       this.emit('reactor:error', x);
     }
   }

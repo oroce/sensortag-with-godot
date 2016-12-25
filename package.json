@@ -55,5 +55,11 @@
   },
   "pre-commit": [
     "test"
-  ]
+  ],
+  "semistandard": {
+    "env": {
+      "node": true,
+      "mocha": true
+    }
+  }
 }

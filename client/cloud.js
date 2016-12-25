@@ -1,6 +1,6 @@
 var request = require('request');
 var debug = require('debug')('swg:parrot-cloud');
-function auth(options, cb) {
+function auth (options, cb) {
   request({
     url: 'https://apiflowerpower.parrot.com/user/v1/authenticate',
     qs: {
@@ -11,7 +11,7 @@ function auth(options, cb) {
       password: options.password
     },
     json: true
-  }, function(err, response, json) {
+  }, function (err, response, json) {
     if (err) {
       return cb(err);
     }
@@ -22,7 +22,7 @@ function auth(options, cb) {
 
 module.exports.auth = auth;
 
-function get(options, cb) {
+function get (options, cb) {
   request({
     url: 'https://apiflowerpower.parrot.com/sensor_data/v2/sample/location/' + options.location,
     headers: {
@@ -30,10 +30,10 @@ function get(options, cb) {
     },
     qs: {
       from_datetime_utc: options.from,
-      to_datetime_utc: options.to,
+      to_datetime_utc: options.to
     },
     json: true
-  }, function(err, resp, json) {
+  }, function (err, resp, json) {
     if (err) {
       return cb(err);
     }
@@ -43,7 +43,7 @@ function get(options, cb) {
 }
 module.exports.get = get;
 
-function garden(options, cb) {
+function garden (options, cb) {
   request({
     url: 'https://apiflowerpower.parrot.com/sensor_data/v3/sync',
     headers: {
@@ -53,7 +53,7 @@ function garden(options, cb) {
       include_s3_urls: 1
     },
     json: true
-  }, function(err, resp, json) {
+  }, function (err, resp, json) {
     if (err) {
       return cb(err);
     }
@@ -64,7 +64,7 @@ function garden(options, cb) {
 
 module.exports.garden = garden;
 
-function upload(options, cb) {
+function upload (options, cb) {
   options.date = options.date || new Date();
   var offset = (new Date()).getTimezoneOffset();
   var url = 'https://apiflowerpower.parrot.com/sensor_data/v5/sample';
@@ -73,19 +73,19 @@ function upload(options, cb) {
     'user_config_version': options.userConfigVersion,
     'tmz_offset': offset,
     'session_histories': [{
-       'sensor_serial' : options.serial,
-       'session_id': options.currentId,
-       'sample_measure_period': options.currentSessionPeriod,
-       'sensor_startup_timestamp_utc': options.startupTime,
-       'session_start_index': options.currentSessionStartIdx
+      'sensor_serial': options.serial,
+      'session_id': options.currentId,
+      'sample_measure_period': options.currentSessionPeriod,
+      'sensor_startup_timestamp_utc': options.startupTime,
+      'session_start_index': options.currentSessionStartIdx
     }],
     'uploads': [{
-       'sensor_serial': options.serial,
-       'upload_timestamp_utc': options.date,
-       'buffer_base64': options.history,
-       'app_version': '',
-       'sensor_fw_version': options.firmwareVersion,
-       'sensor_hw_identifier' : options.hardwareVersion,
+      'sensor_serial': options.serial,
+      'upload_timestamp_utc': options.date,
+      'buffer_base64': options.history,
+      'app_version': '',
+      'sensor_fw_version': options.firmwareVersion,
+      'sensor_hw_identifier': options.hardwareVersion
     }]
   };
   debug('put to %s: %j (options=%j)', url, body, options);
@@ -97,7 +97,7 @@ function upload(options, cb) {
     },
     body: body,
     json: true
-  }, function(err, resp, body) {
+  }, function (err, resp, body) {
     console.log(err, body);
     cb(err, body);
   });

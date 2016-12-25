@@ -2,7 +2,7 @@
 var mutexify = require('mutexify');
 var debug = require('debug')('swg:lock');
 var locks = {};
-module.exports = function(key, cb) {
+module.exports = function (key, cb) {
   if (locks[key] == null) {
     debug('new instance of lock for %s', key);
     locks[key] = mutexify();
@@ -13,11 +13,10 @@ module.exports = function(key, cb) {
   return lock.cancel;
 };
 
-
-function setup(cb) {
+function setup (cb) {
   var done = false;
   var release;
-  function cancel() {
+  function cancel () {
     done = true;
     debug('cancelling lock');
     cb(new Error('Already canceled'));
@@ -25,7 +24,7 @@ function setup(cb) {
       release();
     }
   }
-  function next() {
+  function next () {
     debug('worker is done (are we done=%s, has rls=%s)', done, !!release);
     if (done) {
       return;
@@ -35,7 +34,7 @@ function setup(cb) {
       release();
     }
   }
-  function lockReceived(rls) {
+  function lockReceived (rls) {
     if (done) {
       cb(new Error('Lock received, but already canceled'));
       rls();
@@ -49,5 +48,4 @@ function setup(cb) {
     cancel: cancel,
     cb: lockReceived
   };
-
 }

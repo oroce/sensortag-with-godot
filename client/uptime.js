@@ -7,12 +7,12 @@ var debug = require('debug')('swg:service:uptime');
 var uptime = require('os-uptime')();
 
 module.exports = producer(
-  function ctor(options) {
+  function ctor (options) {
     options = options || {};
     debug('Uptime ctor: %j', options);
     this.options = options;
   },
-  function produce(data) {
+  function produce (data) {
     var servicePrefix = this.options.service;
     var service = (servicePrefix ? servicePrefix + '/' : '') + 'uptime';
     debug('New uptime event for %s is %s', service, uptime);

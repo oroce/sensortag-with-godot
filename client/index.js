@@ -2,12 +2,11 @@
 var config = require('./config');
 
 var godot = require('godot');
-//var sensortag = require('godot-sensortag');
+// var sensortag = require('godot-sensortag');
 var debug = require('debug')('swg:client');
 var temperature = require('./temperature');
-var memory = require('memory-producer');
-var port = process.env.GODOT_PORT||1337;
-var host = process.env.GODOT_SERVER||'localhost';
+var port = process.env.GODOT_PORT || 1337;
+var host = process.env.GODOT_SERVER || 'localhost';
 var producer = require('godot-producer');
 var sensortagProducer = require('./sensortag');
 var minewProducer = require('./minew');
@@ -18,9 +17,9 @@ var weatherProducer = require('./weather');
 var uptimeProducer = require('./uptime');
 var extend = require('deep-extend');
 var noble = require('noble');
-var Dummy = producer(function() {
+var Dummy = producer(function () {
   this.ndx = 0;
-}, function() {
+}, function () {
   ++this.ndx;
   this.emit('data', {
     tags: ['st-metric'],
@@ -31,22 +30,22 @@ var Dummy = producer(function() {
 
 var producers = [];
 
-function add(type, ctor) {
+function add (type, ctor) {
   if (config[type].enabled) {
     // flower power cloud
     if ((config[type].uuids || []).length) {
-      config[type].uuids.forEach(function(uuid, i) {
+      config[type].uuids.forEach(function (uuid, i) {
         debug('adding %s. %s with uuid %s and ttl:%s',
           i,
           type,
           uuid,
           config[type].ttl);
         producers.push(ctor(extend({}, config[type], {
-          uuid: uuid,
+          uuid: uuid
         })));
       });
     } else if (Array.isArray(config[type].location) && (config[type].location || []).length) {
-      config[type].location.forEach(function(location, i) {
+      config[type].location.forEach(function (location, i) {
         debug('adding %s. %s with location %s and ttl:%s',
           i,
           type,
@@ -79,7 +78,7 @@ if (config.rpi) {
 if (config.dummy) {
   producers.push(Dummy({ttl: +config.dummy || 600}));
 }
-console.log('Producers.len=', producers.length)
+console.log('Producers.len=', producers.length);
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {
@@ -87,27 +86,27 @@ var client = godot.createClient({
     maxDelay: 1000 * 10
   },
   producers: producers || [
-    /*Dummy({
+    /* Dummy({
       ttl: 600
-    }),*/
-    /*sensortagProducer({
+    }), */
+    /* sensortagProducer({
       ttl: config.sensortag.ttl,
     }),
     minewProducer({
       ttl: config.minew.ttl
-    }),*/
-    /*flowerPowerCloudProducer({
+    }), */
+    /* flowerPowerCloudProducer({
       ttl: config.flowerPowerCloud.ttl,
       clientId: config.flowerPowerCloud.clientId,
       clientSecret: config.flowerPowerCloud.clientSecret,
       username: config.flowerPowerCloud.username,
       password: config.flowerPowerCloud.password,
       location: config.flowerPowerCloud.location
-    }),*/
-    /*flowerPowerProducer({
+    }), */
+    /* flowerPowerProducer({
       ttl: config.flowerPower.ttl
-    })*/
-    /*sensortag({
+    }) */
+    /* sensortag({
       ttl: +process.env.TTL || 1000 * 15,
       mappings: {
         'bc6a29ac9ad0': 'st2',
@@ -117,36 +116,36 @@ var client = godot.createClient({
         watch: false,
         sensors: ['irTemperature', 'humidity']
       }
-    }),*/
-    /*temperature({
+    }), */
+    /* temperature({
       host: 'rpi',
       service: 'rpi/temperature'
     }),
     memory({
       host: 'rpi',
       service: 'rpi/memory'
-    })*/
+    }) */
   ]
-})
+});
 client
-  .on('connect', function onconnect() {
+  .on('connect', function onconnect () {
     debug('connecting');
   })
-  .on('error', function onerror(err) {
+  .on('error', function onerror (err) {
     debug('error occured: %s', err);
   })
-  .on('reconnect', function onreconnect() {
+  .on('reconnect', function onreconnect () {
     debug('trying to reconnect');
   });
-client.connect(port, host, function(err) {
+client.connect(port, host, function (err) {
   if (err) {
     console.error(err);
   }
   console.log('Connected to %s:%s', host, port);
 });
 
-function produce() {
-  producers.forEach(function(producer) {
+function produce () {
+  producers.forEach(function (producer) {
     producer.produce();
   });
 }
@@ -154,7 +153,7 @@ if (config.lead) {
   produce();
 }
 
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function (err) {
   console.log('UNCAUGHT EXCEPTION: ' + err);
   console.error(err);
   process.exit(1);

@@ -3,7 +3,7 @@ var godot = require('godot');
 var ReadWriteStream = godot.common.ReadWriteStream;
 var util = require('util');
 var reconnect = require('reconnect-net');
-function Forward(options) {
+function Forward (options) {
   if (!(this instanceof Forward)) {
     return new Forward(options);
   }
@@ -14,15 +14,17 @@ function Forward(options) {
   ReadWriteStream.call(this);
   this._queue = [];
   var self = this;
-  this.reconnect = reconnect(function(stream) {
+  this.reconnect = reconnect(function (stream) {
     var item;
-    while(item = self._queue.shift()) {
+    while (self._queue.length > 0) {
+      item = self._queue.shift();
       stream.write(item + '\n');
     }
     self.socket = stream;
-  }).on('disconnect', function() {
+  }).on('disconnect', function () {
     self.socket = null;
-  }).on('error', function(err) {
+  }).on('error', function (err) {
+    self.emit('error', err);
     self.socket = null;
   });
 
@@ -33,7 +35,7 @@ util.inherits(Forward, ReadWriteStream);
 
 module.exports = Forward;
 
-Forward.prototype.write = function(data) {
+Forward.prototype.write = function (data) {
   var raw = JSON.stringify(data);
   if (this.socket) {
     this.socket.write(raw + '\n');
@@ -43,7 +45,7 @@ Forward.prototype.write = function(data) {
   this.emit('data', data);
 };
 
-Forward.prototype.end = function end() {
+Forward.prototype.end = function end () {
   if (this.socket) {
     this.socket.end();
   }

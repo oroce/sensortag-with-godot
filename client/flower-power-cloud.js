@@ -1,6 +1,5 @@
 'use strict';
 var producer = require('godot-producer');
-var request = require('request');
 var Seq = require('seq-file');
 var path = require('path');
 var debug = require('debug')('client:flower-power-cloud');
@@ -8,9 +7,8 @@ var ago = require('time-ago')().ago;
 var cloud = require('./cloud');
 var get = cloud.get;
 var auth = cloud.auth;
-var garden = cloud.garden;
-var Producer = producer(function ctor(options) {
-  //this.seqNum = options.segNum || seqNum;
+var Producer = producer(function ctor (options) {
+  // this.seqNum = options.segNum || seqNum;
   debug('New instance, opts=%j', options);
   if (!options || !options.location) {
     throw new Error('options.location is mandatory');
@@ -30,14 +28,14 @@ var Producer = producer(function ctor(options) {
   } else {
     debug('applied seq is: %s - %s', ago(this.seq.seq), this.seq.seq);
   }
-}, function produce() {
+}, function produce () {
   var options = this.options;
   debug('starting produce, opts=%j', options);
   this.get(options);
 });
 module.exports = Producer;
 
-Producer.prototype.get = function(options) {
+Producer.prototype.get = function (options) {
   debug('getting %j', options);
   var location = options.location;
   var self = this;
@@ -46,7 +44,7 @@ Producer.prototype.get = function(options) {
     clientSecret: options.clientSecret,
     username: options.username,
     password: options.password
-  },function(err, token) {
+  }, function (err, token) {
     if (err) {
       return self.emit('error', err);
     }
@@ -58,13 +56,13 @@ Producer.prototype.get = function(options) {
       from: from.toJSON(),
       until: until.toJSON(),
       location: location
-    }, function(err, data) {
+    }, function (err, data) {
       if (err) {
         self.emit('error', err);
         return;
       }
 
-      until = data.samples.reduce(function(prev, metric) {
+      until = data.samples.reduce(function (prev, metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
           service: 'light/percent',
@@ -90,13 +88,13 @@ Producer.prototype.get = function(options) {
         return time;
       }, until);
       var fertilizers = data.fertilizer
-        .filter(function(fertilizer) {
+        .filter(function (fertilizer) {
           var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
 
           return then > from;
         });
       fertilizers
-        .forEach(function(fertilizer) {
+        .forEach(function (fertilizer) {
           self.emit('data', {
             service: 'fertilizer/level',
             metric: fertilizer.fertilizer_level,
@@ -104,7 +102,7 @@ Producer.prototype.get = function(options) {
             meta: fertilizer,
             time: +(new Date(fertilizer.watering_cycle_end_date_time_utc)),
             tags: ['flower-power-cloud'],
-            host: 'api.' + location + '.flower-power-cloud.com',
+            host: 'api.' + location + '.flower-power-cloud.com'
           });
         });
       if (fertilizers.length === 0 && data.samples.length === 0) {
