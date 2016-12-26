@@ -28,7 +28,7 @@
     "godot": "git://github.com/nodejitsu/godot",
     "godot-influxdb": "^0.2.0",
     "godot-producer": "0.0.1",
-    "humanize-duration": "^3.9.0",
+    "humanize-duration": "^3.10.0",
     "json-stringify-safe": "^5.0.1",
     "memory-producer": "^0.1.1",
     "minew-minibeacon": "^1.0.0",
