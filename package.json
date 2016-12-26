@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "semistandard",
     "client": "node client/index",
     "server": "node server/index",
     "client-test": "mocha -r should client/*.spec.js",
@@ -40,15 +40,26 @@
     "nodemailer-smtp-transport": "^2.7.2",
     "os-uptime": "^1.0.0",
     "parse-duration": "^0.1.1",
+    "pre-commit": "^1.1.3",
     "proxyquire": "^1.6.0",
     "reconnect-net": "^1.1.0",
     "request": "^2.75.0",
     "run-series": "^1.1.1",
     "run-waterfall": "^1.1.3",
+    "semistandard": "^9.1.0",
     "sensortag": "^1.2.3",
     "seq-file": "^1.2.1",
     "should": "^11.1.0",
     "time-ago": "^0.1.0",
     "wundergroundnode": "^0.9.0"
+  },
+  "pre-commit": [
+    "test"
+  ],
+  "semistandard": {
+    "env": {
+      "node": true,
+      "mocha": true
+    }
   }
 }

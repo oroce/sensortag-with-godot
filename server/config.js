@@ -1,6 +1,6 @@
 'use strict';
-
-require('dotenv').load({path: __dirname + '/.env'});
+var join = require('path').join;
+require('dotenv').load({path: join(__dirname, '.env')});
 var env = process.env.NODE_ENV || 'development';
 module.exports = {
   email: {
@@ -12,10 +12,10 @@ module.exports = {
     host: process.env.EMAIL_HOST,
     port: 587,
     to: process.env.EMAIL_TO,
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM
   },
   throttle: {
-    enabled: process.env.THROTTLING_REACTOR || env === 'production',
+    enabled: process.env.THROTTLING_REACTOR || env === 'production'
   },
   expire: {
     enabled: process.env.EXPIRE_REACTOR || env === 'production'

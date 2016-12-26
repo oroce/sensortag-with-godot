@@ -4,14 +4,14 @@ var noble = require('noble');
 var debugMe = require('debug')('swg:discover');
 module.exports = mixin;
 
-function logEvents(constructor, expand, dbg) {
+function logEvents (constructor, expand, dbg) {
   var debug = dbg || debugMe;
   var evts = constructor.emitter._events;
   var len = Object.keys(evts).length;
   if (len === 0) {
     debug('No events attached to noble');
   }
-  Object.keys(evts).forEach(function(evt) {
+  Object.keys(evts).forEach(function (evt) {
     var val = evts[evt];
     var arr = Array.isArray(val) ? val : [val];
 
@@ -19,12 +19,12 @@ function logEvents(constructor, expand, dbg) {
     if (expand === false) {
       return;
     }
-    arr.forEach(function(func) {
+    arr.forEach(function (func) {
       debug('\t\t%s eventlistener is %s (%s)', evt, func.name || 'unnamed', func.toString());
     });
   });
 }
-function discoverThis(callback, dbg) {
+function discoverThis (callback, dbg) {
   var constructor = this;
   var debug = dbg || debugMe;
   debug('discover this');
@@ -43,7 +43,7 @@ function discoverThis(callback, dbg) {
   }
 }
 
-function stopDiscoverThis(discoverCallback, dbg) {
+function stopDiscoverThis (discoverCallback, dbg) {
   var constructor = this;
   var debug = dbg || debugMe;
   debug('stop discover this');
@@ -67,14 +67,14 @@ function stopDiscoverThis(discoverCallback, dbg) {
   }
 }
 
-function mixin(constructor) {
+function mixin (constructor) {
   constructor.discoverThis = constructor.discoverThis || discoverThis;
   constructor.stopDiscoverThis = constructor.stopDiscoverThis || stopDiscoverThis;
 }
 
-mixin.discoverThis = function(ctor, cb, dbg) {
+mixin.discoverThis = function (ctor, cb, dbg) {
   discoverThis.call(ctor, cb, dbg);
 };
-mixin.stopDiscoverThis = function(ctor, cb, dbg) {
+mixin.stopDiscoverThis = function (ctor, cb, dbg) {
   stopDiscoverThis.call(ctor, cb, dbg);
 };
