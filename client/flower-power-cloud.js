@@ -65,7 +65,7 @@ Producer.prototype.get = function (options) {
         self.emit('error', new Error(JSON.stringify(data)));
         return;
       }
-      deubg('received data: %j', data);
+      debug('received data: %j', data);
       until = data.samples.reduce(function (prev, metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
