@@ -13,15 +13,15 @@
   "author": "",
   "license": "ISC",
   "optionalDependencies": {
-    "vcgencmd": "^0.2.5",
+    "vcgencmd": "^0.3.0",
     "bluetooth-hci-socket": "^0.5.1"
   },
   "dependencies": {
-    "async": "^1.4.2",
+    "async": "^2.0.1",
     "boolean": "^0.1.0",
-    "debug": "^0.8.1",
+    "debug": "^2.2.0",
     "deep-extend": "^0.4.0",
-    "dotenv": "^1.2.0",
+    "dotenv": "^2.0.0",
     "ee-first": "^1.1.1",
     "flower-power": "git://github.com/oroce/node-flower-power#history-without-noble",
     "function-name": "https://registry.npmjs.org/function-name/-/function-name-1.0.0.tgz",
