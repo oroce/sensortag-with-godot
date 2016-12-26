@@ -2,7 +2,7 @@ var request = require('request');
 var debug = require('debug')('swg:parrot-cloud');
 function auth (options, cb) {
   request({
-    url: 'https://apiflowerpower.parrot.com/user/v1/authenticate',
+    url: 'https://api-flower-power-pot.parrot.com/user/v1/authenticate',
     qs: {
       grant_type: 'password',
       client_id: options.clientId,
@@ -24,7 +24,7 @@ module.exports.auth = auth;
 
 function get (options, cb) {
   request({
-    url: 'https://apiflowerpower.parrot.com/sensor_data/v2/sample/location/' + options.location,
+    url: 'https://api-flower-power-pot.parrot.com/sensor_data/v6/sample/location/' + options.location,
     headers: {
       'Authorization': 'Bearer ' + options.token
     },
@@ -67,7 +67,7 @@ module.exports.garden = garden;
 function upload (options, cb) {
   options.date = options.date || new Date();
   var offset = (new Date()).getTimezoneOffset();
-  var url = 'https://apiflowerpower.parrot.com/sensor_data/v5/sample';
+  var url = 'https://api-flower-power-pot.parrot.com/sensor_data/v8/sample';
   var body = {
     'client_datetime_utc': options.date,
     'user_config_version': options.userConfigVersion,

@@ -61,7 +61,10 @@ Producer.prototype.get = function (options) {
         self.emit('error', err);
         return;
       }
-
+      if (data.errors && data.errors.length) {
+        self.emit('error', new Error(JSON.stringify(data)));
+        return;
+      }
       until = data.samples.reduce(function (prev, metric) {
         var time = new Date(metric.capture_ts);
         self.emit('data', {
