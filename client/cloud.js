@@ -30,7 +30,7 @@ function get (options, cb) {
     },
     qs: {
       from_datetime_utc: options.from,
-      to_datetime_utc: options.to
+      to_datetime_utc: options.until
     },
     json: true
   }, function (err, resp, json) {
