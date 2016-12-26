@@ -49,7 +49,7 @@
     "semistandard": "^9.1.0",
     "sensortag": "^1.2.3",
     "seq-file": "^1.2.1",
-    "should": "^11.1.1",
+    "should": "^11.1.2",
     "time-ago": "^0.1.0",
     "wundergroundnode": "^0.10.0"
   },
