@@ -3,15 +3,15 @@
 'use strict';
 
 var producer = require('godot-producer');
-var MiniBeacon = require('minew-minibeacon')
+var MiniBeacon = require('minew-minibeacon');
 var debug = require('debug')('swg:device:minibeacon');
 var series = require('run-series');
 require('./discover')(MiniBeacon);
 
-var Producer = producer(function ctor(options) {
+var Producer = producer(function ctor (options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized MiniBeacon with %s', this.uuid || '<empty uuid>');
-  this.filter = function(device) {
+  this.filter = function (device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
       this.onDiscover(device);
@@ -23,7 +23,7 @@ var Producer = producer(function ctor(options) {
     }
   }.bind(this);
   this.on('error', console.error.bind(console));
-}, function produce() {
+}, function produce () {
   debug('producing, stopping and restarting discovery');
   MiniBeacon.stopDiscoverThis(this.filter);
   if (this.device) {
@@ -35,26 +35,25 @@ var Producer = producer(function ctor(options) {
 
 module.exports = Producer;
 
-Producer.prototype.onDiscover = function onDiscover(device) {
+Producer.prototype.onDiscover = function onDiscover (device) {
   MiniBeacon.stopDiscoverThis(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;
   var peripheral = device._peripheral;
   var advertisement = peripheral.advertisement;
-  var localName = advertisement.localName;
   var txPowerLevel = advertisement.txPowerLevel;
   series([
-    function(cb) {
+    function (cb) {
       device.connectAndSetup(cb);
     },
-    function(cb) {
+    function (cb) {
       device.readBatteryLevel(cb);
     },
-    function(cb) {
+    function (cb) {
       device._peripheral.updateRssi(cb);
     }
-  ], function(err, results) {
+  ], function (err, results) {
     if (err) {
       self.emit('error', err);
       // do not return, maybe we could grab some data

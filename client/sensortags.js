@@ -11,8 +11,7 @@ SensorTag.SCAN_DUPLICATES = true;
 CC2540SensorTag.SCAN_DUPLICATES = true;
 var NobleDevice = require('sensortag/node_modules/noble-device');
 NobleDevice.Util.mixin(CC2540SensorTag, NobleDevice.BatteryService);
-var format = require('util').format;
-noble.on('stateChange', function(state) {
+noble.on('stateChange', function (state) {
   console.log('state change', state);
   if (state === 'poweredOn') {
     noble.startScanning();
@@ -21,31 +20,31 @@ noble.on('stateChange', function(state) {
   }
 });
 queue
-  .on('timeout', function(next, job) {
+  .on('timeout', function (next, job) {
     console.log('timeout', job);
     job.cancel(next);
     // should cancel `job`
-    //next();
+    // next();
   })
-  .on('error', function(err, job) {
+  .on('error', function (err, job) {
     console.log('error occured=', err, '' + job);
   })
-  .on('success', function(result, job) {
+  .on('success', function (result, job) {
     console.log('successfully run job=', '' + job);
   })
-  .on('end', function() {
+  .on('end', function () {
     console.log('no more jobs to process, scanning');
     noble.startScanning();
-  })
+  });
 queue.start();
-module.exports = producer(function ctor() {
+module.exports = producer(function ctor () {
   var self = this;
   var allowed = (process.env.UUIDS || '').split(',');
   this.devices = [];
   console.log('new instance');
-  noble.on('discover', function(peripheral) {
+  noble.on('discover', function (peripheral) {
     if (allowed.length && allowed.indexOf(peripheral.uuid) === -1) {
-      console.log('Ignoring %s because not in allowed (%s)', peripheral.uuid, allowed)
+      console.log('Ignoring %s because not in allowed (%s)', peripheral.uuid, allowed);
       queue.start();
       return;
     }
@@ -56,16 +55,16 @@ module.exports = producer(function ctor() {
     var txPowerLevel = advertisement.txPowerLevel;
     console.log('new device %s (adv=%s)', localName, JSON.stringify(advertisement));
     if ((localName === 'SensorTag') || (localName === 'TI BLE Sensor Tag')) {
-      var job = function(cb) {
+      var job = function (cb) {
         var tag = new CC2540SensorTag(peripheral);
-        tag.on('error', function(err) {
+        tag.on('error', function (err) {
           console.error(err);
           console.log('error occured (%s), disco', err);
           tag.disconnect();
         });
-        tag.on('disconnect', function() {
+        tag.on('disconnect', function () {
           console.log('disco');
-          var ndx = self.devices.indexOf(tag)
+          var ndx = self.devices.indexOf(tag);
           if (ndx === -1) {
             // it can happen, if tag disconnects before we could setup (low rssi)
             console.log('disco not setup device');
@@ -97,23 +96,23 @@ module.exports = producer(function ctor() {
         });
         console.log('start connecting=', peripheral.uuid);
         series([
-          function(cb) {
+          function (cb) {
             tag.connect(cb);
           },
-          function(cb) {
+          function (cb) {
             tag.discoverServicesAndCharacteristics(cb);
           },
-          function(cb) {
+          function (cb) {
             tag.enableIrTemperature(cb);
           },
-          function(cb) {
+          function (cb) {
             tag.enableHumidity(cb);
           }
-        ], function(err) {
+        ], function (err) {
           if (err) {
             self.emit('error', err);
             cb(err);
-            return
+            return;
           }
           console.log('added %s', tag);
           self.devices.push(tag);
@@ -127,43 +126,40 @@ module.exports = producer(function ctor() {
             },
             tags: ['st-connection']
           });
-          //noble.startScanning();
+          // noble.startScanning();
           cb(null, {
-             uuid: peripheral.uuid
+            uuid: peripheral.uuid
           });
-       });
+        });
       };
-      job.cancel = function(cb) {
+      job.cancel = function (cb) {
         peripheral.disconnect(cb);
       };
-      job.toString = function() {
+      job.toString = function () {
         return localName + '(' + peripheral.uuid + ')';
       };
-      //queue.push(job);
-      job(function(err) {
+      // queue.push(job);
+      job(function (err) {
         console.log('job is done: (err=%s)', err || '');
         queue.start();
       });
-      //queue.start();
+      // queue.start();
       console.log('job added to the queue');
     } else {
       console.log('dunno what is it', localName, peripheral);
       queue.start();
     }
-    
   });
-
-
-}, function produce() {
+}, function produce () {
   var self = this;
   var len = this.devices.length;
   if (len === 0) {
     return console.log('no device yet');
   }
-  var read = function(device, fn) {
+  var read = function (device, fn) {
     series([
-      function(cb) {
-        device.readIrTemperature(function(err, object, ambient) {
+      function (cb) {
+        device.readIrTemperature(function (err, object, ambient) {
           if (err) return cb(err);
           cb(null, {
             object: object,
@@ -171,8 +167,8 @@ module.exports = producer(function ctor() {
           });
         });
       },
-      function(cb) {
-        device.readHumidity(function(err, temperature, humidity) {
+      function (cb) {
+        device.readHumidity(function (err, temperature, humidity) {
           if (err) return cb(err);
           cb(null, {
             temperature: temperature,
@@ -180,16 +176,16 @@ module.exports = producer(function ctor() {
           });
         });
       },
-      function(cb) {
+      function (cb) {
         if (device._peripheral.advertisement.serviceUuids.indexOf('180f') === -1) {
           return cb();
         }
         device.readBatteryLevel(cb);
       },
-      function(cb) {
+      function (cb) {
         device._peripheral.updateRssi(cb);
       }
-    ], function(err, results) {
+    ], function (err, results) {
       if (err) {
         self.emit('error', err);
         fn(err);
@@ -197,7 +193,7 @@ module.exports = producer(function ctor() {
       }
       var temp = results[0];
       var humidity = results[1];
-      var battery = results[2]
+      var battery = results[2];
       var rssi = results[3];
 
       self.emit('data', {
@@ -251,11 +247,10 @@ module.exports = producer(function ctor() {
     });
   };
 
-  var fns = this.devices.map(function(device) {
-    return function(fn) {
+  var fns = this.devices.map(function (device) {
+    return function (fn) {
       read(device, fn);
     };
   });
   series(fns);
 });
-

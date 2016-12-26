@@ -3,7 +3,7 @@ var producer = require('godot-producer');
 var debug = require('debug')('client:weather');
 var Wunderground = require('wundergroundnode');
 
-module.exports = producer(function ctor(options) {
+module.exports = producer(function ctor (options) {
   debug('New instance, opts=%j', options);
   options || (options = {});
   if (!options.key) {
@@ -15,11 +15,11 @@ module.exports = producer(function ctor(options) {
   this.wunderground = new Wunderground(options.key);
   this.options = options;
   this.on('error', console.error.bind(console));
-}, function produce() {
+}, function produce () {
   var self = this;
   var options = this.options;
   debug('starting produce, opts=%j', options);
-  this.wunderground.conditions().request(options.location, function(err, condition) {
+  this.wunderground.conditions().request(options.location, function (err, condition) {
     if (err) {
       self.emit('error', err);
       return;

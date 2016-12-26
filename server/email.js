@@ -5,9 +5,9 @@ var util = require('util');
 var nodemailer = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 var debug = require('debug')('godot-reactor:email');
-function Email(options) {
+function Email (options) {
   if (!(this instanceof Email)) {
-    return new Email(options)
+    return new Email(options);
   }
   if (!options || !options.auth || !options.from || !options.to) {
     throw new Error('options.auth, options.to, options.from are mandatory!');
@@ -26,7 +26,7 @@ util.inherits(Email, ReadWriteStream);
 
 module.exports = Email;
 
-Email.prototype.write = function write(data) {
+Email.prototype.write = function write (data) {
   var self = this;
   var subj = this.subject(data, this.lastMetric);
   var text = this.body(data, this.lastMetric);
@@ -38,20 +38,20 @@ Email.prototype.write = function write(data) {
   };
   this.lastMetric = data.metric;
   debug('sending email with opts: %j', opts);
-  this.transporter.sendMail(opts, function(err, result) {
+  this.transporter.sendMail(opts, function (err, result) {
     if (err) {
       self.emit('error', err);
       debug('failed to send email: %s', err);
       return;
     }
-    debug('email sent successfully: %j', result)
+    debug('email sent successfully: %j', result);
   });
 };
 
-function subject(data) {
+function subject (data) {
   return util.format('Service is at %s from %s', data.metric, data.host);
 }
 
-function body(data) {
+function body (data) {
   return JSON.stringify(data, null, 2);
 }

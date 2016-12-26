@@ -1,8 +1,8 @@
 var proxyquire = require('proxyquire');
-describe('auth', function() {
-  it('shold call authenticate', function(done) {
+describe('auth', function () {
+  it('shold call authenticate', function (done) {
     var auth = proxyquire('./flower-power-cloud', {
-      request: function(opts, cb) {
+      request: function (opts, cb) {
         var qs = opts.qs;
         opts.url.should.eql('https://apiflowerpower.parrot.com/user/v1/authenticate');
         qs.grant_type.should.eql('password');
@@ -21,17 +21,16 @@ describe('auth', function() {
       clientSecret: 'bar',
       username: 'foobar',
       password: 'barfoo'
-    }, function(err, token) {
+    }, function (err, token) {
       (err == null).should.be.ok;
       token.should.eql('FOO-BAR');
       done();
     });
   });
 
-
-  it('shold forward error', function(done) {
+  it('shold forward error', function (done) {
     var auth = proxyquire('./flower-power-cloud', {
-      request: function(opts, cb) {
+      request: function (opts, cb) {
         cb(new Error('Not found'));
       }
     }).auth;
@@ -41,8 +40,8 @@ describe('auth', function() {
       clientSecret: 'bar',
       username: 'foobar',
       password: 'barfoo'
-    }, function(err, token) {
-      (err == null).should.not.be.ok
+    }, function (err, token) {
+      (err == null).should.not.be.ok;
       err.should.instanceof.Error;
       done();
     });

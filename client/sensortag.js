@@ -9,10 +9,10 @@ SensorTag.SCAN_DUPLICATES = true;
 var series = require('run-series');
 require('./discover')(SensorTag);
 
-var Producer = producer(function ctor(options) {
+var Producer = producer(function ctor (options) {
   var uuid = this.uuid = options.uuid;
   debug('initialized sensortag with %s', this.uuid || '<empty uuid>');
-  this.filter = function(device) {
+  this.filter = function (device) {
     if (!uuid) {
       debug('filtering %s, but no filter', device.uuid);
       this.onDiscover(device);
@@ -24,7 +24,7 @@ var Producer = producer(function ctor(options) {
     }
   }.bind(this);
   this.on('error', console.error.bind(console));
-}, function produce() {
+}, function produce () {
   debug('producing, stopping and restarting discovery');
   SensorTag.stopDiscoverThis(this.filter);
   if (this.device) {
@@ -33,33 +33,32 @@ var Producer = producer(function ctor(options) {
   }
   SensorTag.discoverThis(this.filter);
 });
-module.exports = Producer
+module.exports = Producer;
 
-Producer.prototype.onDiscover = function onDiscover(device) {
+Producer.prototype.onDiscover = function onDiscover (device) {
   SensorTag.stopDiscoverThis(this.filter);
   debug('discovered device: ', device.uuid);
   var self = this;
   this.device = device;
   var peripheral = device._peripheral;
   var advertisement = peripheral.advertisement;
-  var localName = advertisement.localName;
   var txPowerLevel = advertisement.txPowerLevel;
   series([
-    function(cb) {
+    function (cb) {
       debug('connecting and setup');
       device.connectAndSetup(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('enable ir temperature');
       device.enableIrTemperature(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('enable humidity');
       device.enableHumidity(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('read ir temperature');
-      device.readIrTemperature(function(err, object, ambient) {
+      device.readIrTemperature(function (err, object, ambient) {
         if (err) return cb(err);
         cb(null, {
           object: object,
@@ -67,9 +66,9 @@ Producer.prototype.onDiscover = function onDiscover(device) {
         });
       });
     },
-    function(cb) {
+    function (cb) {
       debug('read humidity');
-      device.readHumidity(function(err, temperature, humidity) {
+      device.readHumidity(function (err, temperature, humidity) {
         if (err) return cb(err);
         cb(null, {
           temperature: temperature,
@@ -77,18 +76,18 @@ Producer.prototype.onDiscover = function onDiscover(device) {
         });
       });
     },
-    function(cb) {
+    function (cb) {
       debug('read battery level');
       if (device._peripheral.advertisement.serviceUuids.indexOf('180f') === -1) {
         return cb();
       }
       device.readBatteryLevel(cb);
     },
-    function(cb) {
+    function (cb) {
       debug('update rssi');
       device._peripheral.updateRssi(cb);
     }
-  ], function(err, results) {
+  ], function (err, results) {
     if (err) {
       self.emit('error', err);
       // keep discovering because we failed

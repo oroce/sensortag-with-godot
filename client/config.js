@@ -71,20 +71,20 @@ module.exports = {
   }
 };
 
-function deviceEnabled(name) {
+function deviceEnabled (name) {
   return boolean(process.env[name.toUpperCase() + '_ENABLED']);
 }
 
-function deviceUuids(name) {
+function deviceUuids (name) {
   return split(process.env[name.toUpperCase() + '_UUIDS']);
 }
 
-function split(value) {
+function split (value) {
   if (value == null) {
     return [];
   }
   return value.split(',')
-    .filter(function(v) {
+    .filter(function (v) {
       return v !== '';
     });
 }
