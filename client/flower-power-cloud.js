@@ -90,7 +90,7 @@ Producer.prototype.get = function (options) {
         });
         return time;
       }, until);
-      var fertilizers = data.fertilizer
+      var fertilizers = (data.fertilizer || [])
         .filter(function (fertilizer) {
           var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
 
