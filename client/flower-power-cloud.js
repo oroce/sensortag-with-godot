@@ -67,7 +67,7 @@ Producer.prototype.get = function (options) {
       }
       debug('received data: %j', data);
       until = data.samples.reduce(function (prev, metric) {
-        var time = new Date(metric.capture_ts);
+        var time = new Date(metric.capture_datetime_utc);
         self.emit('data', {
           service: 'light/percent',
           metric: metric.par_umole_m2s,
@@ -84,32 +84,21 @@ Producer.prototype.get = function (options) {
         });
         self.emit('data', {
           service: 'soil/moisture',
-          metric: metric.vwc_percent,
+          metric: metric.soil_moisture_percent,
+          host: 'api.' + location + '.flower-power-cloud.com',
+          tags: ['flower-power'],
+          time: +time
+        });
+        self.emit('data', {
+          service: 'fertilizer/level',
+          metric: metric.fertilizer_level,
           host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power'],
           time: +time
         });
         return time;
       }, until);
-      var fertilizers = (data.fertilizer || [])
-        .filter(function (fertilizer) {
-          var then = new Date(fertilizer.watering_cycle_end_date_time_utc);
-
-          return then > from;
-        });
-      fertilizers
-        .forEach(function (fertilizer) {
-          self.emit('data', {
-            service: 'fertilizer/level',
-            metric: fertilizer.fertilizer_level,
-            id: fertilizer.id,
-            meta: fertilizer,
-            time: +(new Date(fertilizer.watering_cycle_end_date_time_utc)),
-            tags: ['flower-power-cloud'],
-            host: 'api.' + location + '.flower-power-cloud.com'
-          });
-        });
-      if (fertilizers.length === 0 && data.samples.length === 0) {
+      if (data.samples.length === 0) {
         debug('No need to save the new until (%s) because there was no samples nor fertilizers.', until);
         return;
       }
