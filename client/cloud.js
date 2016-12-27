@@ -72,6 +72,7 @@ function upload (options, cb) {
     'client_datetime_utc': options.date,
     'user_config_version': options.userConfigVersion,
     'tmz_offset': offset,
+    'plant_science_database_identifier': 'en_20151020_3.0.2',
     'session_histories': [{
       'sensor_serial': options.serial,
       'session_id': options.currentId,
