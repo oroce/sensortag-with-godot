@@ -185,6 +185,12 @@ Producer.prototype.onDiscover = function onDiscover (flowerPower) {
       });
     },
     function (cb) {
+      flowerPower.readFriendlyName(function (err, name) {
+        debug('got name=%s', name);
+        cb(err, name);
+      });
+    },
+    function (cb) {
       debug('disconnect');
       flowerPower.disconnect(cb);
     }
@@ -222,6 +228,17 @@ Producer.prototype.onDiscover = function onDiscover (flowerPower) {
         username: options.username,
         password: options.password
       }),
+      function (token, cb) {
+        cloud.profile({
+          token: token
+        }, function (err, params) {
+          if (err) {
+            return cb(err);
+          }
+          params.userConfigVersion = params.user_config_version;
+          cb(null, token);
+        });
+      },
       /* function(token, cb) {
         cloud.garden({
           token: token
@@ -241,10 +258,11 @@ Producer.prototype.onDiscover = function onDiscover (flowerPower) {
         params.startupTime = startupTime;
         params.currentSessionStartIdx = currentSessionStartIdx;
         params.currentSessionPeriod = currentSessionPeriod;
-        params.userConfigVersion = 8;
+        // params.userConfigVersion = 8;
         params.serial = serial; // wtf why no device.uuid
         params.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
         params.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
+        params.plant_science_database_identifier = 'en_20151020_3.0.2';
 
         debug('upload about to start with params=%j', params);
         cloud.upload(params, cb);

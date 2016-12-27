@@ -104,3 +104,20 @@ function upload (options, cb) {
 }
 
 module.exports.upload = upload;
+
+function profile (options, cb) {
+  request({
+    url: 'https://api-flower-power-pot.parrot.com/user/v4/profile',
+    headers: {
+      'Authorization': 'Bearer ' + options.token
+    },
+    json: true
+  }, function (err, resp, json) {
+    if (err) {
+      return cb(err);
+    }
+
+    cb(null, json);
+  });
+}
+module.exports.profile = profile;
