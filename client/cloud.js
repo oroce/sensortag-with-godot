@@ -98,7 +98,7 @@ function upload (options, cb) {
     body: body,
     json: true
   }, function (err, resp, body) {
-    console.log(err, body);
+    debug('received upload response, err=%s, body=', err, body);
     cb(err, body);
   });
 }
@@ -116,7 +116,7 @@ function profile (options, cb) {
     if (err) {
       return cb(err);
     }
-
+    debug('received profile info: %j', json);
     cb(null, json);
   });
 }

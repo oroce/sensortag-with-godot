@@ -203,11 +203,12 @@ Producer.prototype.onDiscover = function onDiscover (flowerPower) {
     data = data || [];
     // find mapping of data
     var startupTime = data[7];
-    var systemId = data[8];
-    var serial = systemId.replace(/:/gm, '').toUpperCase();
+    // var systemId = data[8];
+    // var serial = systemId.replace(/:/gm, '').toUpperCase();
     var history = data[9];
     var firmwareVersion = data[1];
     var hardwareVersion = data[2];
+    var serialName = data[10];
     if (!history) {
       debug('Failed to get history');
       return;
@@ -259,7 +260,7 @@ Producer.prototype.onDiscover = function onDiscover (flowerPower) {
         params.currentSessionStartIdx = currentSessionStartIdx;
         params.currentSessionPeriod = currentSessionPeriod;
         // params.userConfigVersion = 8;
-        params.serial = serial; // wtf why no device.uuid
+        params.serial = serialName; // wtf why no device.uuid
         params.hardwareVersion = hardwareVersion.substr(0, (hardwareVersion.indexOf('\u0000')) ? hardwareVersion.indexOf('\u0000') : hardwareVersion.length);
         params.firmwareVersion = firmwareVersion.substr(0, (firmwareVersion.indexOf('\u0000')) ? firmwareVersion.indexOf('\u0000') : firmwareVersion.length);
         params.plant_science_database_identifier = 'en_20151020_3.0.2';
