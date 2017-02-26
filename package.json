@@ -36,7 +36,7 @@
     "mutexify": "^1.1.0",
     "noble": "^1.7.0",
     "noble-device": "^1.4.1",
-    "nodemailer": "^2.6.4",
+    "nodemailer": "^3.1.4",
     "nodemailer-smtp-transport": "^2.7.2",
     "os-uptime": "^1.0.0",
     "parse-duration": "^0.1.1",
