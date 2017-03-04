@@ -78,7 +78,7 @@ if (config.rpi) {
 if (config.dummy) {
   producers.push(Dummy({ttl: +config.dummy || 600}));
 }
-console.log('Producers.len=', producers.length);
+
 var client = godot.createClient({
   type: 'tcp',
   reconnect: {
