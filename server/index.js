@@ -5,11 +5,10 @@ var port = +process.env.PORT || 1337;
 var format = require('util').format;
 debug('server will listen on %s', port);
 var async = require('async');
-var Tagged = godot.tagged;
-var tagged = new Tagged('any', 'st-metric');
 var expiry = +process.env.EXPIRY || 1000 * 10;
 var throttle = +process.env.THROTTLE || 1000 * 60;
 var email = require('./email');
+var slack = require('./slack');
 var config = require('./config');
 var humanizeDuration = require('humanize-duration');
 debug('expiry=%s, throttle=%s', expiry, throttle);
@@ -64,7 +63,19 @@ if (config.uptime.enabled) {
     });
   } else {
     reboot = godot.console(function (data) {
-      debug(data.description);
+      debug('an email would have been sent: %s', data.description);
+    });
+  }
+
+  var rebootSlack;
+  if (config.slack.enabled) {
+    rebootSlack = slack({
+      token: config.slack.token,
+      channel: config.slack.channel
+    });
+  } else {
+    rebootSlack = godot.console(function (data) {
+      debug('a slack message would have been sent: %s', data.description);
     });
   }
   var change = godot.change('metric');
@@ -74,7 +85,9 @@ if (config.uptime.enabled) {
     return socket
       .pipe(godot.where('service', '*/uptime'))
       .pipe(change)
-      .pipe(reboot);
+      .pipe(godot.throttle(1, 1000 * 60))
+      .pipe(reboot)
+      .pipe(rebootSlack);
   });
 }
 if (config.influxdb.enabled) {
@@ -89,11 +102,19 @@ if (config.influxdb.enabled) {
 if (config.expire.enabled) {
   reactors.push(function down (socket) {
     return socket
-      .pipe(tagged)
+      .pipe(godot.where('service', '*/uptime'))
       .pipe(
         godot.by('host', function (socketByHost) {
           return socketByHost
             .pipe(godot.expire(expiry))
+            .pipe(slack({
+              disabled: !config.slack.enabled,
+              channel: config.slack.channel,
+              token: config.slack.token,
+              formatter: function (data) {
+                return data.host + ' went down (no data for ' + expiry + ')';
+              }
+            }))
             .pipe(godot.console(function (data) {
               opsgenie('down', 'expiry', data || {});
             }));
@@ -104,11 +125,19 @@ if (config.expire.enabled) {
 if (config.throttle.enabled) {
   reactors.push(function up (socket) {
     return socket
-      .pipe(tagged)
+      .pipe(godot.where('service', '*/uptime'))
       .pipe(
         godot.by('host', function (socketByHost) {
           return socketByHost
             .pipe(godot.throttle(1, throttle))
+            .pipe(slack({
+              disabled: !config.slack.enabled,
+              channel: config.slack.channel,
+              token: config.slack.token,
+              formatter: function (data) {
+                return data.host + ' came up';
+              }
+            }))
             .pipe(godot.console(function (data) {
               opsgenie('up', null, data || {});
             }));

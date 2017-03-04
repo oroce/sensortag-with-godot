@@ -36,5 +36,10 @@ module.exports = {
     host: process.env.FORWARD_HOST,
     port: +process.env.FORWARD_PORT,
     type: process.env.FORWARD_TYPE
+  },
+  slack: {
+    enabled: process.env.SLACK_ENABLED,
+    channel: process.env.SLACK_CHANNEL,
+    token: process.env.SLACK_TOKEN
   }
 };
