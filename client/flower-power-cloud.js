@@ -70,7 +70,7 @@ Producer.prototype.get = function (options) {
         var time = new Date(metric.capture_datetime_utc);
         self.emit('data', {
           service: 'light/percent',
-          metric: metric.par_umole_m2s,
+          metric: metric.light,
           host: 'api.' + location + '.flower-power-cloud.com',
           tags: ['flower-power-cloud'],
           time: +time
