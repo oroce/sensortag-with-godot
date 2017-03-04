@@ -24,6 +24,7 @@ module.exports = producer(function ctor (options) {
       self.emit('error', err);
       return;
     }
+    debug('Condition received: %j', condition);
     var obs = condition.current_observation;
     var time = new Date(obs.observation_time_rfc822);
     self.emit('data', {
@@ -43,7 +44,7 @@ module.exports = producer(function ctor (options) {
     self.emit('data', {
       service: 'weather/feelslike',
       time: +time,
-      metric: obs.feelslike_c,
+      metric: +obs.feelslike_c,
       tags: ['weather'],
       host: 'api.weather.com'
     });
