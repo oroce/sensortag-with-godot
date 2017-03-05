@@ -130,14 +130,6 @@ if (config.throttle.enabled) {
         godot.by('host', function (socketByHost) {
           return socketByHost
             .pipe(godot.throttle(1, throttle))
-            .pipe(slack({
-              disabled: !config.slack.enabled,
-              channel: config.slack.channel,
-              token: config.slack.token,
-              formatter: function (data) {
-                return data.host + ' came up';
-              }
-            }))
             .pipe(godot.console(function (data) {
               opsgenie('up', null, data || {});
             }));
