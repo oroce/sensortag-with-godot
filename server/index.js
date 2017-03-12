@@ -112,11 +112,29 @@ if (config.expire.enabled) {
               channel: config.slack.channel,
               token: config.slack.token,
               formatter: function (data) {
-                return data.host + ' went down (no data for ' + expiry + ')';
+                return data.host + ' went down (no data for ' + humanizeDuration(expiry) + ')';
               }
             }))
             .pipe(godot.console(function (data) {
               opsgenie('down', 'expiry', data || {});
+            }));
+        })
+      );
+  });
+  reactors.push(function down (socket) {
+    return socket
+      .pipe(godot.where('service', 'flowerpower/history'))
+      .pipe(
+        godot.by('host', function (socketByHost) {
+          return socketByHost
+            .pipe(godot.expire(config.expire.flowerPowerTtl))
+            .pipe(slack({
+              disabled: !config.slack.enabled,
+              channel: config.slack.channel,
+              token: config.slack.token,
+              formatter: function (data) {
+                return data.host + ' wasn\'t read for ' + humanizeDuration(config.expire.flowerPowerTtl);
+              }
             }));
         })
       );
@@ -142,6 +160,9 @@ if (config.forward.enabled) {
     type: config.forward.type,
     host: config.forward.host,
     port: config.forward.port
+  }).on('error', function (err) {
+    console.log('Failed to foward to %s://%s:%s', config.forward.type, config.forward.host, config.forward.port);
+    console.error(err);
   });
   reactors.push(function forwarder (socket) {
     return socket

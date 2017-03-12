@@ -18,7 +18,8 @@ module.exports = {
     enabled: process.env.THROTTLING_REACTOR || env === 'production'
   },
   expire: {
-    enabled: process.env.EXPIRE_REACTOR || env === 'production'
+    enabled: process.env.EXPIRE_REACTOR || env === 'production',
+    flowerPowerTtl: process.env.FLOWER_POWER_HISTORY_TTL
   },
   uptime: {
     enabled: process.env.UPTIME_REACTOR || env === 'production'
