@@ -20,7 +20,7 @@
     "async": "^2.1.0",
     "boolean": "^0.1.0",
     "debug": "^2.5.2",
-    "deep-extend": "^0.4.0",
+    "deep-extend": "^0.5.0",
     "dotenv": "^2.0.0",
     "ee-first": "^1.1.1",
     "flower-power": "git://github.com/oroce/node-flower-power#history-without-noble",
