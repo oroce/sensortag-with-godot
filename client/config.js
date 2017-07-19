@@ -9,7 +9,8 @@ var uuids = {
   sensortag: deviceUuids('sensortag'),
   minew: deviceUuids('minew'),
   flowerPower: deviceUuids('flower_power'),
-  flowerPowerHistory: deviceUuids('flower_power_history')
+  flowerPowerHistory: deviceUuids('flower_power_history'),
+  miflora: deviceUuids('miflora')
 };
 var enabled = {
   sensortag: deviceEnabled('sensortag'),
@@ -17,7 +18,8 @@ var enabled = {
   flowerPower: deviceEnabled('flower_power'),
   flowerPowerCloud: deviceEnabled('flower_power_cloud'),
   flowerPowerHistory: deviceEnabled('flower_power_history'),
-  uptime: deviceEnabled('uptime')
+  uptime: deviceEnabled('uptime'),
+  miflora: deviceEnabled('miflora')
 };
 
 module.exports = {
@@ -68,6 +70,11 @@ module.exports = {
     enabled: enabled.uptime,
     service: process.env.UPTIME_SERVICE,
     ttl: duration(process.env.UPTIME_TTL || ttl)
+  },
+  miflora: {
+    ttl: duration(process.env.MIFLORA_TTL || ttl),
+    enabled: uuids.miflora.length || enabled.miflora,
+    uuids: uuids.miflora
   }
 };
 
